@@ -64,6 +64,12 @@ class registry:
 			for inst in res[cls]['instances']:
 				instances.append(self.proxy.registry.getInstance(cls, inst['name']))
 			res[cls]['instances'] = self.nameMap(instances)
+			
+			# update the parameters
+			instances = res[cls]['instances']
+			for inst in instances:
+				instances[inst]['parameters'] = self.nameMap(instances[inst]['parameters'])
+
 		self.registry = res
 
 	def update(self, proxy=None):
@@ -94,8 +100,8 @@ class registry:
 					for added in addedInst:
 						print(cls + " '" + added + "' added")
 						newInstance = proxy.registry.getInstance(cls, added)
+						newInstance['parameters'] = self.nameMap(newInstance['parameters'])	
 						oldCls['instances'].update(self.nameMap([newInstance]))
-						
 				
 
 				# Check for removed instances
@@ -104,6 +110,19 @@ class registry:
 					for removed in removedInst:
 						print(cls + " '" + removed + "' removed")
 						oldCls['instances'].pop(removed)
+
+
+				# Check for changed serials
+				for inst in newInst:
+					if newInst[inst]['serial'] != oldInst[inst]['serial']:
+						oldParams = oldInst[inst]['parameters']
+						changedInstance = proxy.registry.getInstance(cls, inst)
+						newParams = self.nameMap(changedInstance['parameters'])
+						for paramName in newParams:
+							if newParams[paramName]['value'] != oldParams[paramName]['value']:
+								print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
+								oldParams[paramName]['value'] = newParams[paramName]['value']
+
 
 				oldCls['serial'] = newCls['serial']
 
