@@ -28,6 +28,16 @@ class pom:
 	def getLoggingLevels(self):
 		return [ 'error', 'warning', 'info', 'debug' ]
 
+	def getLastLog(self, num):
+		lastLog = self.serials['log']
+		firstLog = lastLog
+		if num > lastLog:
+			firstLog = 0
+		else:
+			firstLog -= num
+
+		return self.proxy.core.getLog(firstLog)
+
 	def updateLogs(self, proxy, logId):
 		logs = proxy.core.getLog(logId)
 		for log in logs:

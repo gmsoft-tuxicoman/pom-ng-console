@@ -54,6 +54,22 @@ def completeInstanceRemove(pom, instClass, words):
 	cls = pom.registry.getClass(instClass)
 	return [ x for x in cls['instances'] if x.startswith(words[0]) ]
 
+def cmdLogShow(pom, words):
+	numLogs = 0
+	try:
+		numLogs = int(words[0])
+	except:
+		print("You must enter a valid number")
+		return
+
+	if numLogs <= 0:
+		print("You must enter a number bigger than 0")
+		return
+
+	logs = pom.getLastLog(numLogs)
+	for log in logs:
+		print(log['data'])
+
 def cmdLogLevelSet(pom, words):
 
 	newLevel = 0
@@ -65,7 +81,7 @@ def cmdLogLevelSet(pom, words):
 		try:
 			newLevel = int(words[0])
 		except:
-			print("New level must be an integer or any of", levels)
+			print("New level must be an integer of 1-4 or any of", levels)
 			return
 
 	if newLevel < 1 or newLevel > 4:
@@ -187,6 +203,13 @@ cmds = [
 			'cmd'		: "log level get",
 			'help'		: "Display the current loging level that will be displayed",
 			'callback'	: cmdLogLevelGet
+		},
+
+		{
+			'cmd'		: "log show",
+			'help'		: "Show the last logs",
+			'callback'	: cmdLogShow,
+			'numargs'	: 1
 		}
 		
 	]
