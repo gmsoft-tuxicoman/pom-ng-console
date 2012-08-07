@@ -11,9 +11,22 @@ def cmdConfigShow(registry, args):
 	classes = registry.getClasses()
 	for cls in classes:
 		print(cls, ":")
+		
+		if len(classes[cls]['instances']) == 0:
+			print("\t<none>")
+			continue
 
-		for inst in classes[cls]['instances']:
-			print("\t", inst)
+		for instName in classes[cls]['instances']:
+			inst = classes[cls]['instances'][instName]
+			print("\t" + instName + " :")
+
+			if len(inst['parameters']) == 0:
+				print("\t\t<none>")
+				continue
+
+			for paramName in inst['parameters']:
+				param = inst['parameters'][paramName]
+				print("\t\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
 		
 
 def cmdCoreGetVersion(registry, args):
