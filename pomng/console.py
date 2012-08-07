@@ -95,7 +95,8 @@ class console:
 				self.curMatch.extend(completeCallback(self.pom, words))
 			elif key.startswith(word):
 				if len(words) == 1:
-					self.curMatch.append(key)
+					if key != '_cmd':
+						self.curMatch.append(key)
 				else:
 					self.completeRecur(words[1:], curTree[key])
 
