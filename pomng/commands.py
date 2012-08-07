@@ -29,12 +29,17 @@ def completeInstanceAdd(registry, instClass, words):
 	if len(words) != 1:
 		return []
 	cls = registry.getClass(instClass)
-	out = [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
-	return out
+	return [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
 
 def cmdInstanceRemove(registry, instClass, args):
 	instName = args[0]
 	registry.removeInstance(instClass, instName)
+
+def completeInstanceRemove(registry, instClass, words):
+	if len(words) != 1:
+		return []
+	cls = registry.getClass(instClass)
+	return [ x for x in cls['instances'] if x.startswith(words[0]) ]
 
 cmds = [
 
@@ -68,6 +73,7 @@ cmds = [
 			'signature'	: "datastore remove <name>",
 			'help'		: "Remove an datastore",
 			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "datastore", args),
+			'complete'	: lambda registry, words : completeInstanceRemove(registry, "datastore", words),
 			'numargs'	: 1
 		},
 
@@ -86,6 +92,7 @@ cmds = [
 			'signature'	: "input remove <name>",
 			'help'		: "Remove an input",
 			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "input", args),
+			'complete'	: lambda registry, words : completeInstanceRemove(registry, "input", words),
 			'numargs'	: 1
 		},
 
@@ -104,6 +111,7 @@ cmds = [
 			'signature'	: "output remove <name>",
 			'help'		: "Remove an output",
 			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "output", args),
+			'complete'	: lambda registry, words : completeInstanceRemove(registry, "output", words),
 			'numargs'	: 1
 		},
 
