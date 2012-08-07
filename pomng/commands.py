@@ -1,14 +1,14 @@
 
-def cmdRegistryReload(registry, args):
-	registry.load();
+def cmdRegistryReload(pom, args):
+	pom.registry.load();
 	print("Registry reloaded");
 
-def cmdRegistryDump(registry, args):
-	print(registry.getClasses())
+def cmdRegistryDump(pom, args):
+	print(pom.registry.getClasses())
 
-def cmdConfigShow(registry, args):
-	proxy = registry.getProxy()
-	classes = registry.getClasses()
+def cmdConfigShow(pom, args):
+	proxy = pom.registry.getProxy()
+	classes = pom.registry.getClasses()
 	for cls in classes:
 		print(cls, ":")
 		
@@ -29,29 +29,29 @@ def cmdConfigShow(registry, args):
 				print("\t\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
 		
 
-def cmdCoreGetVersion(registry, args):
-	proxy = registry.getProxy()
+def cmdCoreGetVersion(pom, args):
+	proxy = pom.registry.getProxy()
 	print("Pom-ng version is " + proxy.core.getVersion())
 
-def cmdInstanceAdd(registry, instClass, args):
+def cmdInstanceAdd(pom, instClass, args):
 	instName = args[1]
 	instType = args[0]
-	registry.addInstance(instClass, instName, instType)
+	pom.registry.addInstance(instClass, instName, instType)
 
-def completeInstanceAdd(registry, instClass, words):
+def completeInstanceAdd(pom, instClass, words):
 	if len(words) != 1:
 		return []
-	cls = registry.getClass(instClass)
+	cls = pom.registry.getClass(instClass)
 	return [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
 
-def cmdInstanceRemove(registry, instClass, args):
+def cmdInstanceRemove(pom, instClass, args):
 	instName = args[0]
-	registry.removeInstance(instClass, instName)
+	pom.registry.removeInstance(instClass, instName)
 
-def completeInstanceRemove(registry, instClass, words):
+def completeInstanceRemove(pom, instClass, words):
 	if len(words) != 1:
 		return []
-	cls = registry.getClass(instClass)
+	cls = pom.registry.getClass(instClass)
 	return [ x for x in cls['instances'] if x.startswith(words[0]) ]
 
 cmds = [
@@ -76,8 +76,8 @@ cmds = [
 			'cmd'		: "datastore add",
 			'signature'	: "datastore add <type> <name>",
 			'help'		: "Add an datastore",
-			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "datastore", args),
-			'complete'	: lambda registry, words : completeInstanceAdd(registry, "datastore", words),
+			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "datastore", args),
+			'complete'	: lambda pom, words : completeInstanceAdd(pom, "datastore", words),
 			'numargs'	: 2
 		},
 
@@ -85,8 +85,8 @@ cmds = [
 			'cmd'		: "datastore remove",
 			'signature'	: "datastore remove <name>",
 			'help'		: "Remove an datastore",
-			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "datastore", args),
-			'complete'	: lambda registry, words : completeInstanceRemove(registry, "datastore", words),
+			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "datastore", args),
+			'complete'	: lambda pom, words : completeInstanceRemove(pom, "datastore", words),
 			'numargs'	: 1
 		},
 
@@ -95,8 +95,8 @@ cmds = [
 			'cmd'		: "input add",
 			'signature'	: "input add <type> <name>",
 			'help'		: "Add an input",
-			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "input", args),
-			'complete'	: lambda registry, words : completeInstanceAdd(registry, "input", words),
+			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "input", args),
+			'complete'	: lambda pom, words : completeInstanceAdd(pom, "input", words),
 			'numargs'	: 2
 		},
 
@@ -104,8 +104,8 @@ cmds = [
 			'cmd'		: "input remove",
 			'signature'	: "input remove <name>",
 			'help'		: "Remove an input",
-			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "input", args),
-			'complete'	: lambda registry, words : completeInstanceRemove(registry, "input", words),
+			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "input", args),
+			'complete'	: lambda pom, words : completeInstanceRemove(pom, "input", words),
 			'numargs'	: 1
 		},
 
@@ -114,8 +114,8 @@ cmds = [
 			'cmd'		: "output add",
 			'signature'	: "output add <type> <name>",
 			'help'		: "Add an output",
-			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "output", args),
-			'complete'	: lambda registry, words : completeInstanceAdd(registry, "output", words),
+			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "output", args),
+			'complete'	: lambda pom, words : completeInstanceAdd(pom, "output", words),
 			'numargs'	: 2
 		},
 
@@ -123,8 +123,8 @@ cmds = [
 			'cmd'		: "output remove",
 			'signature'	: "output remove <name>",
 			'help'		: "Remove an output",
-			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "output", args),
-			'complete'	: lambda registry, words : completeInstanceRemove(registry, "output", words),
+			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "output", args),
+			'complete'	: lambda pom, words : completeInstanceRemove(pom, "output", words),
 			'numargs'	: 1
 		},
 

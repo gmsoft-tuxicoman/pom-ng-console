@@ -36,7 +36,7 @@ class console:
 				print("Invalid number of arguments. Expected", res[0]['numargs'], ", got ", len(args))
 				continue
 			
-			callback(self.pom.registry, args)
+			callback(self.pom, args)
 				
 
 	def cmdMatch(self, cmd):
@@ -92,7 +92,7 @@ class console:
 		for key in curTree:
 			if key == '_cmd' and 'complete' in curTree['_cmd']:
 				completeCallback = curTree['_cmd']['complete']
-				self.curMatch.extend(completeCallback(self.pom.registry, words))
+				self.curMatch.extend(completeCallback(self.pom, words))
 			elif key.startswith(word):
 				if len(words) == 1:
 					self.curMatch.append(key)
