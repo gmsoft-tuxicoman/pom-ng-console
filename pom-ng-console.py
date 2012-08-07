@@ -2,29 +2,23 @@
 import pomng
 import xmlrpc.client
 
-proxy = None
+pom = None
 prompt = "pom> "
 
 # First connect to an pom-ng instance
-while proxy == None:
+while pom == None:
 	host = input("Enter pom-ng host (localhost) : ")
 	if host == "":
 		host = "localhost"
 	url = "http://" + host + ":8080/RPC2"
-	print("Connecting to " + url + " ...")
-
-	version = ""
-
 	try:
-		proxy = xmlrpc.client.ServerProxy(url)
-		print("Connected to pom-ng version " + proxy.core.getVersion())
+		pom = pomng.pom(url)
+		print("Connected to pom-ng version " + pom.getVersion())
 	except Exception as e:
 		print("Could not connect to " + url + " :", e)
-		proxy = None
+		pom = None
 
-
-registry = pomng.registry(proxy)
-console = pomng.console(registry)
+console = pomng.console(pom)
 
 # Now process the commands
 

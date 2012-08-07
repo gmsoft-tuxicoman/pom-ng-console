@@ -10,41 +10,104 @@ def cmdConfigShow(registry, args):
 	proxy = registry.getProxy()
 	classes = registry.getClasses()
 	for cls in classes:
-		print(cls['name'], ":")
+		print(cls, ":")
 
-		for inst in cls['instances']:
-			print("\t", inst['name'])
+		for inst in classes[cls]['instances']:
+			print("\t", inst)
 		
 
 def cmdCoreGetVersion(registry, args):
 	proxy = registry.getProxy()
 	print("Pom-ng version is " + proxy.core.getVersion())
 
-def cmdInputAdd(registry, args):
-	inputName = args[0]
-	inputType = args[1]
-	registry.addInstance("input", inputName, inputType)
+def cmdInstanceAdd(registry, instClass, args):
+	instName = args[1]
+	instType = args[0]
+	registry.addInstance(instClass, instName, instType)
+
+def completeInstanceAdd(registry, instClass, words):
+	if len(words) != 1:
+		return []
+	cls = registry.getClass(instClass)
+	out = [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
+	return out
+
+def cmdInstanceRemove(registry, instClass, args):
+	instName = args[0]
+	registry.removeInstance(instClass, instName)
 
 cmds = [
+
+		# Config functions
 		{
 			'cmd'		: "config show",
 			'help'		: "Show the whole configuration",
 			'callback'	: cmdConfigShow
 		},
+		
 
+		# Core functions
 		{
 			'cmd'		: "core get version",
 			'help'		: "Get pom-ng version",
 			'callback'	: cmdCoreGetVersion
 		},
 
+		# Datastore functions
 		{
-			'cmd'		: "input add",
-			'help'		: "Add an input",
-			'callback'	: cmdInputAdd,
+			'cmd'		: "datastore add",
+			'signature'	: "datastore add <type> <name>",
+			'help'		: "Add an datastore",
+			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "datastore", args),
+			'complete'	: lambda registry, words : completeInstanceAdd(registry, "datastore", words),
 			'numargs'	: 2
 		},
 
+		{
+			'cmd'		: "datastore remove",
+			'signature'	: "datastore remove <name>",
+			'help'		: "Remove an datastore",
+			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "datastore", args),
+			'numargs'	: 1
+		},
+
+		# Input functions
+		{
+			'cmd'		: "input add",
+			'signature'	: "input add <type> <name>",
+			'help'		: "Add an input",
+			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "input", args),
+			'complete'	: lambda registry, words : completeInstanceAdd(registry, "input", words),
+			'numargs'	: 2
+		},
+
+		{
+			'cmd'		: "input remove",
+			'signature'	: "input remove <name>",
+			'help'		: "Remove an input",
+			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "input", args),
+			'numargs'	: 1
+		},
+
+		# Output functions
+		{
+			'cmd'		: "output add",
+			'signature'	: "output add <type> <name>",
+			'help'		: "Add an output",
+			'callback'	: lambda registry, args : cmdInstanceAdd(registry, "output", args),
+			'complete'	: lambda registry, words : completeInstanceAdd(registry, "output", words),
+			'numargs'	: 2
+		},
+
+		{
+			'cmd'		: "output remove",
+			'signature'	: "output remove <name>",
+			'help'		: "Remove an output",
+			'callback'	: lambda registry, args : cmdInstanceRemove(registry, "output", args),
+			'numargs'	: 1
+		},
+
+		# Registry functions
 		{
 			'cmd'		: "registry dump",
 			'help'		: "Dump the whole registry",

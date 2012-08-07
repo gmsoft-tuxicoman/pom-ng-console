@@ -1,6 +1,6 @@
+
 import readline
 import shlex
-
 
 class console:
 
@@ -9,14 +9,18 @@ class console:
 
 	cmdTree = {}
 
-	def __init__(self, registry):
-		self.registry = registry
+	def __init__(self, pom):
+		self.pom = pom
 		readline.parse_and_bind("tab: complete")
 		readline.set_completer(self.complete)
 
 	def cmdloop(self):
 		while 1:
 			line = input(self.prompt)
+			split_line = shlex.split(line)
+			if len(split_line) == 0:
+				continue
+
 			res = self.cmdMatch(shlex.split(line))
 			if res == None:
 				continue
@@ -31,12 +35,8 @@ class console:
 			if len(args) != numargs:
 				print("Invalid number of arguments. Expected", res[0]['numargs'], ", got ", len(args))
 				continue
-
-			try:
-				callback(self.registry, args)
-			except Exception as e:
-				print("Error while running command :", e)
-
+			
+			callback(self.pom.registry, args)
 				
 
 	def cmdMatch(self, cmd):
@@ -89,16 +89,15 @@ class console:
 				self.curMatch.append(key)
 			return
 		word = words[0]
-		words = words[1:]
 		for key in curTree:
-			if key == '_cmd':
-				#handle function specific completer
-				pass
+			if key == '_cmd' and 'complete' in curTree['_cmd']:
+				completeCallback = curTree['_cmd']['complete']
+				self.curMatch.extend(completeCallback(self.pom.registry, words))
 			elif key.startswith(word):
-				if len(words) == 0:
+				if len(words) == 1:
 					self.curMatch.append(key)
 				else:
-					self.completeRecur(words, curTree[key])
+					self.completeRecur(words[1:], curTree[key])
 
 	def complete(self, prefix, state):
 		origline = readline.get_line_buffer()
