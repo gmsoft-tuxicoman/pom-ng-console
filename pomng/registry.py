@@ -36,6 +36,21 @@ class registry:
 		except Exception as e:
 			print("Error while adding " + objClass + " '" + objName + "' :", e)
 
+	def setInstanceParameter(self, objClass, objName, paramName, paramValue):
+		cls = self.getClass(objClass)
+		inst = self.getInstance(cls, objName)
+
+		params = inst['parameters']
+		
+		if not paramName in params:
+			print("No parameter '" + paramName + "' in " + objClass + " '" + objName + "'")
+			return
+
+		try:
+			self.proxy.registry.setInstanceParam(objClass, objName, paramName, paramValue)
+		except Exception as e:
+			print("Error while setting " + objClass + " '" + objName + "' parameter '" + paramName + "' to '" + paramValue + "'")
+
 
 	def removeInstance(self, objClass, objName):
 		try:

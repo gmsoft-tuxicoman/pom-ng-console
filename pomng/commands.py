@@ -54,6 +54,32 @@ def completeInstanceRemove(pom, instClass, words):
 	cls = pom.registry.getClass(instClass)
 	return [ x for x in cls['instances'] if x.startswith(words[0]) ]
 
+def cmdInstanceParameterSet(pom, instClass, args):
+	instName = args[0]
+	paramName = args[1]
+	paramValue = args[2]
+	pom.registry.setInstanceParameter(instClass, instName, paramName, paramValue)
+
+def completeInstanceParameterSet(pom, instClass, words):
+	wordCount = len(words)
+
+	if wordCount == 0:
+		return []
+
+	cls = pom.registry.getClass(instClass)
+	if wordCount == 1:
+		return [ x for x in cls['instances'] if x.startswith(words[0]) ]
+
+	instName = words[0]
+	if not instName in cls['instances']:
+		return []
+	inst = cls['instances'][instName]
+
+	if wordCount == 2:
+		return [ x for x in inst['parameters'] if x.startswith(words[1]) ]
+
+	return []
+
 def cmdLogShow(pom, words):
 	numLogs = 0
 	try:
@@ -131,6 +157,15 @@ cmds = [
 		},
 
 		{
+			'cmd'		: "datastore parameter set",
+			'signature'	: "datastore parameter set <datastore_name> <param_name>",
+			'help'		: "Change the value of a parameter",
+			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "datastore", args),
+			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "datastore", words),
+			'numargs'	: 3
+		},
+
+		{
 			'cmd'		: "datastore remove",
 			'signature'	: "datastore remove <name>",
 			'help'		: "Remove an datastore",
@@ -150,6 +185,15 @@ cmds = [
 		},
 
 		{
+			'cmd'		: "input parameter set",
+			'signature'	: "input parameter set <input_name> <param_name>",
+			'help'		: "Change the value of a parameter",
+			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "input", args),
+			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "input", words),
+			'numargs'	: 3
+		},
+
+		{
 			'cmd'		: "input remove",
 			'signature'	: "input remove <name>",
 			'help'		: "Remove an input",
@@ -166,6 +210,15 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "output", args),
 			'complete'	: lambda pom, words : completeInstanceAdd(pom, "output", words),
 			'numargs'	: 2
+		},
+
+		{
+			'cmd'		: "output parameter set",
+			'signature'	: "output parameter set <output_name> <param_name>",
+			'help'		: "Change the value of a parameter",
+			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "output", args),
+			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "output", words),
+			'numargs'	: 3
 		},
 
 		{
