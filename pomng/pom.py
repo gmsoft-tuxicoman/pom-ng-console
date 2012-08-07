@@ -21,6 +21,12 @@ class pom:
 
 	def setLoggingLevel(self, level):
 		self.logLevel = level
+	
+	def getLoggingLevel(self):
+		return self.logLevel
+	
+	def getLoggingLevels(self):
+		return [ 'error', 'warning', 'info', 'debug' ]
 
 	def updateLogs(self, proxy, logId):
 		logs = proxy.core.getLog(logId)

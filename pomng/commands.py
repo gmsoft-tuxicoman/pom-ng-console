@@ -54,6 +54,39 @@ def completeInstanceRemove(pom, instClass, words):
 	cls = pom.registry.getClass(instClass)
 	return [ x for x in cls['instances'] if x.startswith(words[0]) ]
 
+def cmdLogLevelSet(pom, words):
+
+	newLevel = 0
+	levels = pom.getLoggingLevels()
+
+	if words[0] in levels:
+		newLevel = levels.index(words[0]) + 1
+	else:
+		try:
+			newLevel = int(words[0])
+		except:
+			print("New level must be an integer or any of", levels)
+			return
+
+	if newLevel < 1 or newLevel > 4:
+		print("Log level must be 1-4")
+
+	pom.setLoggingLevel(newLevel)
+	print("Logging level set to '" + levels[newLevel - 1] + "'")
+
+def completeLogLevelSet(pom, words):
+	if len(words) != 1:
+		return []
+
+	levels = pom.getLoggingLevels()
+	levels.extend([ '1', '2', '3', '4'])
+	return [ x for x in levels if x.startswith(words[0]) ]
+
+def cmdLogLevelGet(pom, words):
+	levels = pom.getLoggingLevels()
+	level = pom.getLoggingLevel()
+	print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
+
 cmds = [
 
 		# Config functions
@@ -139,6 +172,21 @@ cmds = [
 			'cmd'		: "registry reload",
 			'help'		: "Reload the registry if it gets out of sync",
 			'callback'	: cmdRegistryReload
+		},
+
+		# Logs functions
+		{
+			'cmd'		: "log level set",
+			'help'		: "Set the logging level to be displayed",
+			'callback'	: cmdLogLevelSet,
+			'complete'	: completeLogLevelSet,
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "log level get",
+			'help'		: "Display the current loging level that will be displayed",
+			'callback'	: cmdLogLevelGet
 		}
 		
 	]
