@@ -107,7 +107,7 @@ def completeInstanceParameterSet(pom, instClass, words):
 
 	cls = pom.registry.getClass(instClass)
 	if wordCount == 1:
-		return [ x for x in cls['instances'] if x.startswith(words[0]) ]
+		return [ x for x in cls['instances'] if x.startswith(words[0]) and len(cls['instances'][x]['parameters']) > 0 ]
 
 	instName = words[0]
 	if not instName in cls['instances']:
