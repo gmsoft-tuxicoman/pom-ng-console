@@ -271,6 +271,23 @@ cmds = [
 			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "output"),
 		},
 
+		# Protocol functions
+		{
+			'cmd'		: "proto parameter set",
+			'signature'	: "proto parameter set <proto_name> <param_name>",
+			'help'		: "Change the value of a parameter",
+			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "proto", args),
+			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "proto", words),
+			'numargs'	: 3
+		},
+
+		{
+			'cmd'		: "proto show",
+			'help'		: "Show all configured protos",
+			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "proto"),
+		},
+
+
 		# Registry functions
 		{
 			'cmd'		: "registry dump",
