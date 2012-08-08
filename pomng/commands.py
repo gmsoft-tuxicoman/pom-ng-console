@@ -16,11 +16,17 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 def cmdRegistryReload(pom, args):
-	pom.registry.load();
+	pom.registry.fetch();
 	print("Registry reloaded");
 
 def cmdRegistryDump(pom, args):
 	print(pom.registry.getClasses())
+
+def cmdConfigSave(pom, args):
+	pom.registry.save(args[0])
+
+def cmdConfigLoad(pom, args):
+	pom.registry.load(args[0])
 
 def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
@@ -191,6 +197,20 @@ cmds = [
 			'cmd'		: "config show",
 			'help'		: "Show the whole configuration",
 			'callback'	: cmdConfigShowAll
+		},
+
+		{
+			'cmd'		: "config save",
+			'signature'	: "config save <name>",
+			'callback'	: cmdConfigSave,
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "config load",
+			'signature'	: "config load <name>",
+			'callback'	: cmdConfigLoad,
+			'numargs'	: 1
 		},
 		
 

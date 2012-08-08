@@ -19,7 +19,7 @@ class registry:
 
 	def __init__(self, proxy):
 		self.proxy = proxy
-		self.load()
+		self.fetch()
 
 	def getVersion(self):
 		return self.proxy.core.getVersion()
@@ -37,6 +37,18 @@ class registry:
 
 	def getProxy(self):
 		return self.proxy
+
+	def load(self, configName):
+		try:
+			self.proxy.registry.load(configName)
+		except:
+			print("Error while loading configuration '" + configName + "'")
+
+	def save(self, fileName):
+		try:
+			self.proxy.registry.save(fileName)
+		except:
+			print("Error while saving configuration '" + configName + "'")
 
 	def addInstance(self, objClass, objName, objType):
 	
@@ -86,8 +98,8 @@ class registry:
 				resItem[key] = item[key]
 		return res
 
-	def load(self):
-		# This load the classes in a more python way
+	def fetch(self):
+		# This fetchs the classes in a more python way
 		reg = self.proxy.registry.list()
 		res = self.nameMap(reg['classes'])
 		for cls in res:
@@ -131,7 +143,9 @@ class registry:
 					for added in addedInst:
 						print(cls + " '" + added + "' added")
 						newInstance = proxy.registry.getInstance(cls, added)
+						print(newInstance)
 						newInstance['parameters'] = self.nameMap(newInstance['parameters'])	
+						print(newInstance)
 						oldCls['instances'].update(self.nameMap([newInstance]))
 				
 
