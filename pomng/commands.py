@@ -6,27 +6,50 @@ def cmdRegistryReload(pom, args):
 def cmdRegistryDump(pom, args):
 	print(pom.registry.getClasses())
 
-def cmdConfigShow(pom, args):
+def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
 	classes = pom.registry.getClasses()
 	for cls in classes:
-		print(cls, ":")
+		print(cls + ":")
+		cmdConfigShowClass(pom, cls, 1)
 		
-		if len(classes[cls]['instances']) == 0:
-			print("\t<none>")
+
+def cmdConfigShowClass(pom, clsName, tabs=0):
+
+	cls = pom.registry.getClass(clsName)
+
+	if len(cls['instances']) == 0:
+		print("\t" * tabs + "<no instance>")
+		return
+
+	for instName in cls['instances']:
+		cmdConfigShowInstance(pom, cls, instName, tabs)
+
+
+def cmdConfigShowInstance(pom, clsName, instName, tabs=0):
+	inst = pom.registry.getInstance(clsName, instName)
+	
+	info = ""
+	if 'running' in inst['parameters']:
+		info += "running: " + inst['parameters']['running']['value']
+	if 'type' in inst['parameters']:
+		if len(info) > 0:
+			info += ", "
+		info += "type: " + inst['parameters']['type']['value']
+
+	if len(info) > 0:
+		info = " (" + info + ")"
+
+	print("\t" * tabs + instName + ":" + info)
+	if len(inst['parameters']) == 0:
+		print("\t" * tabs + "\t<no parameter>")
+		return
+
+	for paramName in inst['parameters']:
+		if paramName == "running" or paramName == "type" or paramName == "uid":
 			continue
-
-		for instName in classes[cls]['instances']:
-			inst = classes[cls]['instances'][instName]
-			print("\t" + instName + " :")
-
-			if len(inst['parameters']) == 0:
-				print("\t\t<none>")
-				continue
-
-			for paramName in inst['parameters']:
-				param = inst['parameters'][paramName]
-				print("\t\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
+		param = inst['parameters'][paramName]
+		print("\t" * tabs + "\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
 		
 
 def cmdCoreGetVersion(pom, args):
@@ -76,7 +99,7 @@ def completeInstanceParameterSet(pom, instClass, words):
 	inst = cls['instances'][instName]
 
 	if wordCount == 2:
-		return [ x for x in inst['parameters'] if x.startswith(words[1]) ]
+		return [ x for x in inst['parameters'] if 'default_value' in inst['parameters'][x] and x.startswith(words[1]) and x != "running" ]
 
 	return []
 
@@ -135,7 +158,7 @@ cmds = [
 		{
 			'cmd'		: "config show",
 			'help'		: "Show the whole configuration",
-			'callback'	: cmdConfigShow
+			'callback'	: cmdConfigShowAll
 		},
 		
 
@@ -174,6 +197,12 @@ cmds = [
 			'numargs'	: 1
 		},
 
+		{
+			'cmd'		: "datastore show",
+			'help'		: "Show all configured datastores",
+			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "datastore"),
+		},
+
 		# Input functions
 		{
 			'cmd'		: "input add",
@@ -202,6 +231,12 @@ cmds = [
 			'numargs'	: 1
 		},
 
+		{
+			'cmd'		: "input show",
+			'help'		: "Show all configured inputs",
+			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "input"),
+		},
+
 		# Output functions
 		{
 			'cmd'		: "output add",
@@ -228,6 +263,12 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "output", args),
 			'complete'	: lambda pom, words : completeInstanceRemove(pom, "output", words),
 			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "output show",
+			'help'		: "Show all configured outputs",
+			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "output"),
 		},
 
 		# Registry functions
