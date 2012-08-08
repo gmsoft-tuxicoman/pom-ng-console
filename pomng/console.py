@@ -6,6 +6,7 @@ class console:
 
 	prompt = "pom> "
 	curMatch = []
+	cmdSignatureMaxLen = 0
 
 	cmdTree = {}
 
@@ -13,6 +14,7 @@ class console:
 		self.pom = pom
 		readline.parse_and_bind("tab: complete")
 		readline.set_completer(self.complete)
+		self.registerCmds([{ 'cmd' : "help", 'signature' : "help (command)", 'help' : "Display help for all or a specific command", 'callback' : self.cmdHelp, 'complete' : self.completeHelp, 'numargs' : -1 }])
 
 	def cmdloop(self):
 		while 1:
@@ -31,8 +33,8 @@ class console:
 			numargs = 0
 			if 'numargs' in res[0]:
 				numargs = res[0]['numargs']
-
-			if len(args) != numargs:
+			
+			if numargs != -1 and len(args) != numargs:
 				print("Invalid number of arguments. Expected", res[0]['numargs'], ", got ", len(args))
 				continue
 			
@@ -82,15 +84,21 @@ class console:
 				raise("Command '" + cmd['cmd'] + "' is already registered")
 			else:
 				curTree['_cmd'] = cmd
+
+			signature = cmd['cmd']
+			if 'signature' in cmd:
+				signature = cmd['signature']
+			if self.cmdSignatureMaxLen < len(signature):
+				self.cmdSignatureMaxLen = len(signature)
 		
-	def completeRecur(self, words, curTree):
+	def completeRecur(self, words, curTree, completeCmd = True):
 		if len(words) == 0:
 			for key in curTree:
 				self.curMatch.append(key)
 			return
 		word = words[0]
 		for key in curTree:
-			if key == '_cmd' and 'complete' in curTree['_cmd']:
+			if key == '_cmd' and 'complete' in curTree['_cmd'] and completeCmd:
 				completeCallback = curTree['_cmd']['complete']
 				self.curMatch.extend(completeCallback(self.pom, words))
 			elif key.startswith(word):
@@ -117,3 +125,31 @@ class console:
 			self.curMatch = []
 		return response + " "
 
+	def cmdHelp(self, pom, args):
+		if len(args) > 0:
+			cmds = self.cmdMatchRecur(args, self.cmdTree)
+			cmd = cmds[0][0]
+			signature = cmd['cmd']
+			if 'signature' in cmd:
+				signature = cmd['signature']
+
+			print(signature + " : " + cmd['help'])
+		else:
+			self.cmdHelpRecur(self.cmdTree)
+
+	def cmdHelpRecur(self, curTree):
+		wordList = curTree.keys()
+		for word in sorted(wordList):
+			if word == '_cmd':
+				cmd = curTree['_cmd']	
+				signature = cmd['cmd']
+				if 'signature' in cmd:
+					signature = cmd['signature']
+				print(signature + " " * (self.cmdSignatureMaxLen - len(signature)) + " : " + cmd['help'])
+			else:
+				self.cmdHelpRecur(curTree[word])
+	
+	def completeHelp(self, pom, words):
+		self.curMatch = []
+		self.completeRecur(words, self.cmdTree)
+		return self.curMatch
