@@ -67,6 +67,22 @@ def completeInstanceAdd(pom, instClass, words):
 	cls = pom.registry.getClass(instClass)
 	return [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
 
+def cmdInstanceStartStop(pom, instClass, action, args):
+	instName = args[0]
+	cls = pom.registry.getClass(instClass)
+	inst = pom.registry.getInstance(cls, instName)
+	if inst['parameters']['running']['value'] == action:
+		state = "started" if action == 'yes' else "stopped"
+		print(instClass + " '" + instName + "' is already " + state)
+		return
+	pom.registry.setInstanceParameter(instClass, instName, "running", action)
+
+def completeInstanceStartStop(pom, instClass, words):
+	if len(words) != 1:
+		return []
+	cls = pom.registry.getClass(instClass)
+	return [ x for x in cls['instances'] if 'running' in cls['instances'][x]['parameters'] and x.startswith(words[0]) ]
+
 def cmdInstanceRemove(pom, instClass, args):
 	instName = args[0]
 	pom.registry.removeInstance(instClass, instName)
@@ -237,6 +253,24 @@ cmds = [
 			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "input"),
 		},
 
+		{
+			'cmd'		: "input start",
+			'signature'	: "input start <name>",
+			'help'		: "Start an input",
+			'callback'	: lambda pom, args : cmdInstanceStartStop(pom, "input", "yes", args),
+			'complete'	: lambda pom, words : completeInstanceStartStop(pom, "input", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "input stop",
+			'signature'	: "input stop <name>",
+			'help'		: "Start an input",
+			'callback'	: lambda pom, args : cmdInstanceStartStop(pom, "input", "no", args),
+			'complete'	: lambda pom, words : completeInstanceStartStop(pom, "input", words),
+			'numargs'	: 1
+		},
+
 		# Output functions
 		{
 			'cmd'		: "output add",
@@ -269,6 +303,24 @@ cmds = [
 			'cmd'		: "output show",
 			'help'		: "Show all configured outputs",
 			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "output"),
+		},
+
+		{
+			'cmd'		: "output start",
+			'signature'	: "output start <name>",
+			'help'		: "Start an output",
+			'callback'	: lambda pom, args : cmdInstanceStartStop(pom, "output", "yes", args),
+			'complete'	: lambda pom, words : completeInstanceStartStop(pom, "output", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "output stop",
+			'signature'	: "output stop <name>",
+			'help'		: "Start an output",
+			'callback'	: lambda pom, args : cmdInstanceStartStop(pom, "output", "no", args),
+			'complete'	: lambda pom, words : completeInstanceStartStop(pom, "output", words),
+			'numargs'	: 1
 		},
 
 		# Protocol functions
