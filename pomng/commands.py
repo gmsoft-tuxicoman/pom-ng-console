@@ -119,10 +119,10 @@ def completeInstanceParameterSet(pom, instClass, words):
 
 	return []
 
-def cmdLogShow(pom, words):
+def cmdLogShow(pom, args):
 	numLogs = 0
 	try:
-		numLogs = int(words[0])
+		numLogs = int(args[0])
 	except:
 		print("You must enter a valid number")
 		return
@@ -135,16 +135,16 @@ def cmdLogShow(pom, words):
 	for log in logs:
 		print(log['data'])
 
-def cmdLogLevelSet(pom, words):
+def cmdLogLevelSet(pom, args):
 
 	newLevel = 0
 	levels = pom.getLoggingLevels()
 
-	if words[0] in levels:
-		newLevel = levels.index(words[0]) + 1
+	if args[0] in levels:
+		newLevel = levels.index(args[0]) + 1
 	else:
 		try:
-			newLevel = int(words[0])
+			newLevel = int(args[0])
 		except:
 			print("New level must be an integer of 1-4 or any of", levels)
 			return
@@ -163,7 +163,7 @@ def completeLogLevelSet(pom, words):
 	levels.extend([ '1', '2', '3', '4'])
 	return [ x for x in levels if x.startswith(words[0]) ]
 
-def cmdLogLevelGet(pom, words):
+def cmdLogLevelGet(pom, args):
 	levels = pom.getLoggingLevels()
 	level = pom.getLoggingLevel()
 	print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
