@@ -43,6 +43,8 @@ class pom:
 		for log in logs:
 			if log['level'] <= self.logLevel:
 				print(log['data'])
+			if log['id'] > self.serials['log']:
+				self.serials['log'] = log['id']
 			
 	def pollSerial(self, pollProxy):
 		while True:
@@ -54,7 +56,10 @@ class pom:
 
 			if serials['registry'] != self.serials['registry']:
 				self.registry.update(pollProxy)
-			if serials['log'] != self.serials['log']:
-				self.updateLogs(pollProxy, self.serials['log'])
 			
+			curLogId = self.serials['log']
 			self.serials = serials
+
+			if self.serials['log'] != curLogId:
+				self.updateLogs(pollProxy, curLogId)
+			
