@@ -28,6 +28,12 @@ def cmdConfigSave(pom, args):
 def cmdConfigLoad(pom, args):
 	pom.registry.load(args[0])
 
+def completeConfigLoad(pom, words):
+	if len(words) != 1:
+		return []
+	configs = pom.registry.getConfigs()
+	return [ x['name'] for x in configs if x['name'].startswith(words[0]) ]
+
 def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
 	classes = pom.registry.getClasses()
@@ -210,6 +216,7 @@ cmds = [
 			'cmd'		: "config load",
 			'signature'	: "config load <name>",
 			'callback'	: cmdConfigLoad,
+			'complete'	: completeConfigLoad,
 			'numargs'	: 1
 		},
 		

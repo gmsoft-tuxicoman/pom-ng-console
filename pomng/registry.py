@@ -20,6 +20,8 @@ class registry:
 	def __init__(self, proxy):
 		self.proxy = proxy
 		self.fetch()
+		self.classes_serial = 0
+		self.configs_serial = 0
 
 	def getVersion(self):
 		return self.proxy.core.getVersion()
@@ -30,11 +32,14 @@ class registry:
 	def getClass(self, clsName):
 		return self.registry[clsName]
 
+	def getConfigs(self):
+		return self.configs
+
 	def getInstance(self, cls, instName):
 		if instName in cls['instances']:
 			return cls['instances'][instName]
 		return None
-
+	
 	def getProxy(self):
 		return self.proxy
 
@@ -101,6 +106,10 @@ class registry:
 	def fetch(self):
 		# This fetchs the classes in a more python way
 		reg = self.proxy.registry.list()
+		self.classes_serial = reg['classes_serial']
+		self.configs_serial = reg['configs_serial']
+		self.configs = reg['configs']
+
 		res = self.nameMap(reg['classes'])
 		for cls in res:
 			instances = []
@@ -119,58 +128,63 @@ class registry:
 		
 		if proxy == None:
 			proxy = self.proxy
-		oldReg = self.registry
-		newReg = self.nameMap(proxy.registry.list()['classes'])
 
-		# for each class, check if everything matches
-		for cls in oldReg:
+		newReg = proxy.registry.list()
 
-			oldCls = oldReg[cls]
-			newCls = newReg[cls]
+		if self.classes_serial != newReg['classes_serial']:
 
-			# Serial for this class changed !
-			if oldCls['serial'] != newCls['serial']:
+			oldClss = self.registry
+			newClss = self.nameMap(newReg['classes'])
 
-				print("Found changes in class " + cls)
+			# for each class, check if everything matches
+			for cls in oldClss:
 
-				# Check if instances were added or removed
-				oldInst = oldCls['instances']
-				newInst = self.nameMap(newCls['instances'])
+				oldCls = oldClss[cls]
+				newCls = newClss[cls]
 
-				# Check for added instances
-				addedInst = set(newInst.keys()) - set(oldInst.keys())
-				if len(addedInst) > 0:
-					for added in addedInst:
-						print(cls + " '" + added + "' added")
-						newInstance = proxy.registry.getInstance(cls, added)
-						print(newInstance)
-						newInstance['parameters'] = self.nameMap(newInstance['parameters'])	
-						print(newInstance)
-						oldCls['instances'].update(self.nameMap([newInstance]))
-				
+				# Serial for this class changed !
+				if oldCls['serial'] != newCls['serial']:
 
-				# Check for removed instances
-				removedInst = set(oldInst.keys()) - set(newInst.keys())
-				if len(removedInst) > 0:
-					for removed in removedInst:
-						print(cls + " '" + removed + "' removed")
-						oldCls['instances'].pop(removed)
+					print("Found changes in class " + cls)
 
+					# Check if instances were added or removed
+					oldInst = oldCls['instances']
+					newInst = self.nameMap(newCls['instances'])
 
-				# Check for changed serials
-				for inst in newInst:
-					if newInst[inst]['serial'] != oldInst[inst]['serial']:
-						oldParams = oldInst[inst]['parameters']
-						changedInstance = proxy.registry.getInstance(cls, inst)
-						newParams = self.nameMap(changedInstance['parameters'])
-						for paramName in newParams:
-							if newParams[paramName]['value'] != oldParams[paramName]['value']:
-								print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
-								oldParams[paramName]['value'] = newParams[paramName]['value']
+					# Check for added instances
+					addedInst = set(newInst.keys()) - set(oldInst.keys())
+					if len(addedInst) > 0:
+						for added in addedInst:
+							print(cls + " '" + added + "' added")
+							newInstance = proxy.registry.getInstance(cls, added)
+							newInstance['parameters'] = self.nameMap(newInstance['parameters'])	
+							oldCls['instances'].update(self.nameMap([newInstance]))
+					
+
+					# Check for removed instances
+					removedInst = set(oldInst.keys()) - set(newInst.keys())
+					if len(removedInst) > 0:
+						for removed in removedInst:
+							print(cls + " '" + removed + "' removed")
+							oldCls['instances'].pop(removed)
 
 
-				oldCls['serial'] = newCls['serial']
+					# Check for changed serials
+					for inst in newInst:
+						if newInst[inst]['serial'] != oldInst[inst]['serial']:
+							oldParams = oldInst[inst]['parameters']
+							changedInstance = proxy.registry.getInstance(cls, inst)
+							newParams = self.nameMap(changedInstance['parameters'])
+							for paramName in newParams:
+								if newParams[paramName]['value'] != oldParams[paramName]['value']:
+									print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
+									oldParams[paramName]['value'] = newParams[paramName]['value']
 
+
+					oldCls['serial'] = newCls['serial']
+
+		if self.configs_serial != newReg['configs_serial']:
+			self.configs = newReg['configs']
 
 
 
