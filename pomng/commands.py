@@ -99,6 +99,9 @@ def cmdInstanceStartStop(pom, instClass, action, args):
 	instName = args[0]
 	cls = pom.registry.getClass(instClass)
 	inst = pom.registry.getInstance(cls, instName)
+	if not inst:
+		print(instClass + " '" + instName + "' does not exists")
+		return
 	if inst['parameters']['running']['value'] == action:
 		state = "started" if action == 'yes' else "stopped"
 		print(instClass + " '" + instName + "' is already " + state)
