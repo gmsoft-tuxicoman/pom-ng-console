@@ -18,12 +18,14 @@
 import xmlrpc.client
 import _thread
 import os
+import time
 from . import registry
 
 class pom:
 
 	proxy = None
 	logLevel = 3
+	console = None
 
 	def __init__(self, url):
 		self.url = url
@@ -31,6 +33,8 @@ class pom:
 		self.registry = registry.registry(self.proxy)
 		self.serials = self.proxy.core.serialPoll(0)
 		_thread.start_new_thread(self.pollSerial, (xmlrpc.client.ServerProxy(url), ))
+	def setConsole(self, console):
+		self.console = console
 
 	def getVersion(self):
 		return self.proxy.core.getVersion()
@@ -63,12 +67,25 @@ class pom:
 				self.serials['log'] = log['id']
 			
 	def pollSerial(self, pollProxy):
+		failed = False
 		while True:
 			try:
 				serials = pollProxy.core.serialPoll(self.serials['main'])
 			except Exception as e:
-				print("Error while polling pom-ng :", e)
-				os._exit(1)
+				if not failed:
+					print("Error while polling pom-ng :", e)
+					failed = True
+					self.console.setConnected(False)
+				time.sleep(1)
+				continue
+
+			if failed:
+				print("Polling pom-ng again. Reloading registry...")
+				self.registry.fetch()
+				print("Registry reloaded")
+				self.console.setConnected(True)
+				failed = False
+				continue
 
 			if serials['registry'] != self.serials['registry']:
 				self.registry.update(pollProxy)

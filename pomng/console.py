@@ -23,11 +23,13 @@ class console:
 	prompt = "pom> "
 	curMatch = []
 	cmdSignatureMaxLen = 0
+	connected = True
 
 	cmdTree = {}
 
 	def __init__(self, pom):
 		self.pom = pom
+		self.pom.setConsole(self)
 		readline.parse_and_bind("tab: complete")
 		readline.set_completer(self.complete)
 		self.registerCmds([{ 'cmd' : "help", 'signature' : "help (command)", 'help' : "Display help for all or a specific command", 'callback' : self.cmdHelp, 'complete' : self.completeHelp, 'numargs' : -1 }])
@@ -35,12 +37,17 @@ class console:
 	def cmdloop(self):
 		while 1:
 			line = input(self.prompt)
+
 			split_line = shlex.split(line)
 			if len(split_line) == 0:
 				continue
 
 			res = self.cmdMatch(shlex.split(line))
 			if res == None:
+				continue
+
+			if not self.connected:
+				print("Cannot execute command while not connected")
 				continue
 
 			callback = res[0]['callback']
@@ -169,3 +176,10 @@ class console:
 		self.curMatch = []
 		self.completeRecur(words, self.cmdTree)
 		return self.curMatch
+
+	def setConnected(self, connected):
+		self.connected = connected
+		if self.connected:
+			self.prompt = "pom> "
+		else:
+			self.prompt = "pom [disconnected]> "
