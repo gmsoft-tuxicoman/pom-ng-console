@@ -20,7 +20,6 @@ import pomng
 import xmlrpc.client
 
 pom = None
-prompt = "pom> "
 
 # First connect to an pom-ng instance
 while pom == None:
