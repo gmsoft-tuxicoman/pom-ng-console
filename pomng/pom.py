@@ -71,6 +71,16 @@ class pom:
 		while True:
 			try:
 				serials = pollProxy.core.serialPoll(self.serials['main'])
+
+				if serials['registry'] != self.serials['registry']:
+					self.registry.update(pollProxy)
+				
+				curLogId = self.serials['log']
+				self.serials = serials
+
+				if self.serials['log'] != curLogId:
+					self.updateLogs(pollProxy, curLogId)
+			
 			except Exception as e:
 				if not failed:
 					print("Error while polling pom-ng :", e)
@@ -87,12 +97,3 @@ class pom:
 				failed = False
 				continue
 
-			if serials['registry'] != self.serials['registry']:
-				self.registry.update(pollProxy)
-			
-			curLogId = self.serials['log']
-			self.serials = serials
-
-			if self.serials['log'] != curLogId:
-				self.updateLogs(pollProxy, curLogId)
-			
