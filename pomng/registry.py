@@ -17,11 +17,16 @@
 
 class registry:
 
+	console = None
+
 	def __init__(self, proxy):
 		self.proxy = proxy
 		self.fetch()
 		self.classes_serial = 0
 		self.configs_serial = 0
+
+	def setConsole(self, console):
+		self.console = console
 
 	def getVersion(self):
 		return self.proxy.core.getVersion()
@@ -47,13 +52,13 @@ class registry:
 		try:
 			self.proxy.registry.load(configName)
 		except:
-			print("Error while loading configuration '" + configName + "'")
+			self.console.print("Error while loading configuration '" + configName + "'")
 
 	def save(self, fileName):
 		try:
 			self.proxy.registry.save(fileName)
 		except:
-			print("Error while saving configuration '" + configName + "'")
+			self.console.print("Error while saving configuration '" + configName + "'")
 
 	def addInstance(self, objClass, objName, objType):
 	
@@ -61,13 +66,13 @@ class registry:
 		inst = self.getInstance(cls, objName)
 
 		if not inst == None:
-			print(objClass + " '" + objName + "' already exists")
+			self.console.print(objClass + " '" + objName + "' already exists")
 			return
 
 		try:
 			self.proxy.registry.addInstance(objClass, objName, objType)
 		except Exception as e:
-			print("Error while adding " + objClass + " '" + objName + "' :", e)
+			self.console.print("Error while adding " + objClass + " '" + objName + "' : " + str(e))
 
 	def setInstanceParameter(self, objClass, objName, paramName, paramValue):
 		cls = self.getClass(objClass)
@@ -76,20 +81,20 @@ class registry:
 		params = inst['parameters']
 		
 		if not paramName in params:
-			print("No parameter '" + paramName + "' in " + objClass + " '" + objName + "'")
+			self.console.print("No parameter '" + paramName + "' in " + objClass + " '" + objName + "'")
 			return
 
 		try:
 			self.proxy.registry.setInstanceParam(objClass, objName, paramName, paramValue)
 		except Exception as e:
-			print("Error while setting " + objClass + " '" + objName + "' parameter '" + paramName + "' to '" + paramValue + "'")
+			self.console.print("Error while setting " + objClass + " '" + objName + "' parameter '" + paramName + "' to '" + paramValue + "'")
 
 
 	def removeInstance(self, objClass, objName):
 		try:
 			self.proxy.registry.removeInstance(objClass, objName)
 		except Exception as e:
-			print("Error while removing " + objClass + " '" + objName + "' :", e)
+			self.console.print("Error while removing " + objClass + " '" + objName + "' : " + str(e))
 
 	def nameMap(self, lst):
 	
@@ -145,8 +150,6 @@ class registry:
 				# Serial for this class changed !
 				if oldCls['serial'] != newCls['serial']:
 
-					print("Found changes in class " + cls)
-
 					# Check if instances were added or removed
 					oldInst = oldCls['instances']
 					newInst = self.nameMap(newCls['instances'])
@@ -155,7 +158,7 @@ class registry:
 					addedInst = set(newInst.keys()) - set(oldInst.keys())
 					if len(addedInst) > 0:
 						for added in addedInst:
-							print(cls + " '" + added + "' added")
+							self.console.print(cls + " '" + added + "' added")
 							newInstance = proxy.registry.getInstance(cls, added)
 							newInstance['parameters'] = self.nameMap(newInstance['parameters'])	
 							oldCls['instances'].update(self.nameMap([newInstance]))
@@ -165,7 +168,7 @@ class registry:
 					removedInst = set(oldInst.keys()) - set(newInst.keys())
 					if len(removedInst) > 0:
 						for removed in removedInst:
-							print(cls + " '" + removed + "' removed")
+							self.console.print(cls + " '" + removed + "' removed")
 							oldCls['instances'].pop(removed)
 
 
@@ -177,7 +180,7 @@ class registry:
 							newParams = self.nameMap(changedInstance['parameters'])
 							for paramName in newParams:
 								if newParams[paramName]['value'] != oldParams[paramName]['value']:
-									print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
+									self.console.print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
 									oldParams[paramName]['value'] = newParams[paramName]['value']
 
 

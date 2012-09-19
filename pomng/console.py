@@ -17,13 +17,15 @@
 
 import readline
 import shlex
+import sys
 
 class console:
-
+	
 	prompt = "pom> "
 	curMatch = []
 	cmdSignatureMaxLen = 0
 	connected = True
+	cmdRunning = False
 
 	cmdTree = {}
 
@@ -38,16 +40,21 @@ class console:
 		while 1:
 			line = input(self.prompt)
 
+			self.cmdRunning = True
+
 			split_line = shlex.split(line)
 			if len(split_line) == 0:
+				self.cmdRunning = False
 				continue
 
 			res = self.cmdMatch(shlex.split(line))
 			if res == None:
+				self.cmdRunning = False
 				continue
 
 			if not self.connected:
-				print("Cannot execute command while not connected")
+				self.print("Cannot execute command while not connected")
+				self.cmdRunning = False
 				continue
 
 			callback = res[0]['callback']
@@ -58,18 +65,20 @@ class console:
 				numargs = res[0]['numargs']
 			
 			if numargs != -1 and len(args) != numargs:
-				print("Invalid number of arguments. Expected", res[0]['numargs'], ", got ", len(args))
+				self.print("Invalid number of arguments. Expected" + res[0]['numargs'] + ", got " + str(len(args)))
+				self.cmdRunning = False
 				continue
 			
 			callback(self.pom, args)
-				
+			
+			self.cmdRunning = False
 
 	def cmdMatch(self, cmd):
 		cmds = self.cmdMatchRecur(cmd, self.cmdTree)
 		if len(cmds) == 0:
-			print("Command not found")
+			self.print("Command not found")
 		elif len(cmds) > 1:
-			print("Abiguous command")
+			self.print("Abiguous command")
 		else:
 			return cmds[0]
 		return None
@@ -156,7 +165,7 @@ class console:
 			if 'signature' in cmd:
 				signature = cmd['signature']
 
-			print(signature + " : " + cmd['help'])
+			self.print(signature + " : " + cmd['help'])
 		else:
 			self.cmdHelpRecur(self.cmdTree)
 
@@ -168,7 +177,7 @@ class console:
 				signature = cmd['cmd']
 				if 'signature' in cmd:
 					signature = cmd['signature']
-				print(signature + " " * (self.cmdSignatureMaxLen - len(signature)) + " : " + cmd['help'])
+				self.print(signature + " " * (self.cmdSignatureMaxLen - len(signature)) + " : " + cmd['help'])
 			else:
 				self.cmdHelpRecur(curTree[word])
 	
@@ -179,7 +188,38 @@ class console:
 
 	def setConnected(self, connected):
 		self.connected = connected
+		old_prompt = self.prompt
 		if self.connected:
 			self.prompt = "pom> "
 		else:
 			self.prompt = "pom [disconnected]> "
+
+		old_len = len(old_prompt)
+		new_len = len(self.prompt)
+		if new_len < old_len:
+			for i in range(old_len - new_len):
+				sys.stdout.write("\b")
+			for i in range(old_len - new_len):
+				sys.stdout.write(" ")
+		sys.stdout.write("\r" + self.prompt + readline.get_line_buffer())
+		
+
+	def print(self, line):
+		if self.cmdRunning:
+			print(line)
+			return
+		
+		buf = readline.get_line_buffer()
+		tot_len = len(buf) + len(self.prompt)
+		line_len = len(line)
+
+		# erase extra characters
+		if tot_len > line_len:
+			for i in range(line_len - tot_len):
+				sys.stdout.write("\b")
+			for i in range(line_len - tot_len):
+				sys.stdout.write(" ")
+		sys.stdout.write("\r" + line + "\n" + self.prompt + buf)
+
+
+

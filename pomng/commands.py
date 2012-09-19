@@ -17,10 +17,10 @@
 
 def cmdRegistryReload(pom, args):
 	pom.registry.fetch();
-	print("Registry reloaded");
+	pom.console.print("Registry reloaded");
 
 def cmdRegistryDump(pom, args):
-	print(pom.registry.getClasses())
+	pom.console.print(pom.registry.getClasses())
 
 def cmdConfigSave(pom, args):
 	pom.registry.save(args[0])
@@ -38,7 +38,7 @@ def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
 	classes = pom.registry.getClasses()
 	for cls in classes:
-		print(cls + ":")
+		pom.console.print(cls + ":")
 		cmdConfigShowClass(pom, cls, 1)
 		
 
@@ -47,7 +47,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 	cls = pom.registry.getClass(clsName)
 
 	if len(cls['instances']) == 0:
-		print("\t" * tabs + "<no instance>")
+		pom.console.print("\t" * tabs + "<no instance>")
 		return
 
 	for instName in cls['instances']:
@@ -68,21 +68,21 @@ def cmdConfigShowInstance(pom, clsName, instName, tabs=0):
 	if len(info) > 0:
 		info = " (" + info + ")"
 
-	print("\t" * tabs + instName + ":" + info)
+	pom.console.print("\t" * tabs + instName + ":" + info)
 	if len(inst['parameters']) == 0:
-		print("\t" * tabs + "\t<no parameter>")
+		pom.console.print("\t" * tabs + "\t<no parameter>")
 		return
 
 	for paramName in inst['parameters']:
 		if paramName == "running" or paramName == "type" or paramName == "uid":
 			continue
 		param = inst['parameters'][paramName]
-		print("\t" * tabs + "\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
+		pom.console.print("\t" * tabs + "\t" + paramName + " : '" + param['value'] + "' (" + param['type'] + ")")
 		
 
 def cmdCoreGetVersion(pom, args):
 	proxy = pom.registry.getProxy()
-	print("Pom-ng version is " + proxy.core.getVersion())
+	pom.console.print("Pom-ng version is " + proxy.core.getVersion())
 
 def cmdInstanceAdd(pom, instClass, args):
 	instName = args[1]
@@ -100,11 +100,11 @@ def cmdInstanceStartStop(pom, instClass, action, args):
 	cls = pom.registry.getClass(instClass)
 	inst = pom.registry.getInstance(cls, instName)
 	if not inst:
-		print(instClass + " '" + instName + "' does not exists")
+		pom.console.print(instClass + " '" + instName + "' does not exists")
 		return
 	if inst['parameters']['running']['value'] == action:
 		state = "started" if action == 'yes' else "stopped"
-		print(instClass + " '" + instName + "' is already " + state)
+		pom.console.print(instClass + " '" + instName + "' is already " + state)
 		return
 	pom.registry.setInstanceParameter(instClass, instName, "running", action)
 
@@ -155,16 +155,16 @@ def cmdLogShow(pom, args):
 	try:
 		numLogs = int(args[0])
 	except:
-		print("You must enter a valid number")
+		pom.console.print("You must enter a valid number")
 		return
 
 	if numLogs <= 0:
-		print("You must enter a number bigger than 0")
+		pom.console.print("You must enter a number bigger than 0")
 		return
 
 	logs = pom.getLastLog(numLogs)
 	for log in logs:
-		print(log['data'])
+		pom.console.print(log['data'])
 
 def cmdLogLevelSet(pom, args):
 
@@ -177,14 +177,14 @@ def cmdLogLevelSet(pom, args):
 		try:
 			newLevel = int(args[0])
 		except:
-			print("New level must be an integer of 1-4 or any of", levels)
+			pom.console.print("New level must be an integer of 1-4 or any of " + str(levels))
 			return
 
 	if newLevel < 1 or newLevel > 4:
-		print("Log level must be 1-4")
+		pom.console.print("Log level must be 1-4")
 
 	pom.setLoggingLevel(newLevel)
-	print("Logging level set to '" + levels[newLevel - 1] + "'")
+	pom.console.print("Logging level set to '" + levels[newLevel - 1] + "'")
 
 def completeLogLevelSet(pom, words):
 	if len(words) != 1:
@@ -197,7 +197,7 @@ def completeLogLevelSet(pom, words):
 def cmdLogLevelGet(pom, args):
 	levels = pom.getLoggingLevels()
 	level = pom.getLoggingLevel()
-	print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
+	pom.console.print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
 
 cmds = [
 

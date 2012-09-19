@@ -35,6 +35,7 @@ class pom:
 		_thread.start_new_thread(self.pollSerial, (xmlrpc.client.ServerProxy(url), ))
 	def setConsole(self, console):
 		self.console = console
+		self.registry.setConsole(console)
 
 	def getVersion(self):
 		return self.proxy.core.getVersion()
@@ -62,7 +63,7 @@ class pom:
 		logs = proxy.core.getLog(logId)
 		for log in logs:
 			if log['level'] <= self.logLevel:
-				print(log['data'])
+				self.console.print(log['data'])
 			if log['id'] > self.serials['log']:
 				self.serials['log'] = log['id']
 			
@@ -83,16 +84,16 @@ class pom:
 			
 			except Exception as e:
 				if not failed:
-					print("Error while polling pom-ng :", e)
+					self.console.print("Error while polling pom-ng : " + str(e))
 					failed = True
 					self.console.setConnected(False)
 				time.sleep(1)
 				continue
 
 			if failed:
-				print("Polling pom-ng again. Reloading registry...")
+				self.console.print("Polling pom-ng again. Reloading registry...")
 				self.registry.fetch()
-				print("Registry reloaded")
+				self.console.print("Registry reloaded")
 				self.console.setConnected(True)
 				failed = False
 				continue
