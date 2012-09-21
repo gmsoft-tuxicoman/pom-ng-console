@@ -38,7 +38,11 @@ class console:
 
 	def cmdloop(self):
 		while 1:
-			line = input(self.prompt)
+			try:
+				line = input(self.prompt)
+			except:
+				print("\nThanks for using pom-ng !")
+				return
 
 			self.cmdRunning = True
 

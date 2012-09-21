@@ -18,12 +18,17 @@
 
 import pomng
 import xmlrpc.client
+import sys
 
 pom = None
 
 # First connect to an pom-ng instance
 while pom == None:
-	host = input("Enter pom-ng host (localhost) : ")
+	try:
+		host = input("Enter pom-ng host (localhost) : ")
+	except:
+		print("\n")
+		sys.exit()
 	if host == "":
 		host = "localhost"
 	url = "http://" + host + ":8080/RPC2"
