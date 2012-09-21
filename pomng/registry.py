@@ -54,11 +54,17 @@ class registry:
 		except:
 			self.console.print("Error while loading configuration '" + configName + "'")
 
-	def save(self, fileName):
+	def save(self, configName):
 		try:
-			self.proxy.registry.save(fileName)
+			self.proxy.registry.save(configName)
 		except:
 			self.console.print("Error while saving configuration '" + configName + "'")
+
+	def delete_config(self, configName):
+		try:
+			self.proxy.registry.delete_config(configName)
+		except:
+			self.console.print("Error while deleting configuration '" + configName + "'")
 
 	def addInstance(self, objClass, objName, objType):
 	

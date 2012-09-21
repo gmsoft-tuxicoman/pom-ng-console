@@ -28,7 +28,10 @@ def cmdConfigSave(pom, args):
 def cmdConfigLoad(pom, args):
 	pom.registry.load(args[0])
 
-def completeConfigLoad(pom, words):
+def cmdConfigDelete(pom, args):
+	pom.registry.delete_config(args[0])
+
+def completeConfigList(pom, words):
 	if len(words) != 1:
 		return []
 	configs = pom.registry.getConfigs()
@@ -219,10 +222,17 @@ cmds = [
 			'cmd'		: "config load",
 			'signature'	: "config load <name>",
 			'callback'	: cmdConfigLoad,
-			'complete'	: completeConfigLoad,
+			'complete'	: completeConfigList,
 			'numargs'	: 1
 		},
 		
+		{
+			'cmd'		: "config delete",
+			'signature'	: "config delete <name>",
+			'callback'	: cmdConfigDelete,
+			'complete'	: completeConfigList,
+			'numargs'	: 1
+		},
 
 		# Core functions
 		{
