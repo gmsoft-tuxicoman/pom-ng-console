@@ -65,7 +65,7 @@ class console:
 				numargs = res[0]['numargs']
 			
 			if numargs != -1 and len(args) != numargs:
-				self.print("Invalid number of arguments. Expected" + res[0]['numargs'] + ", got " + str(len(args)))
+				self.print("Invalid number of arguments. Expected " + str(res[0]['numargs']) + ", got " + str(len(args)))
 				self.cmdRunning = False
 				continue
 			
