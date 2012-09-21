@@ -33,6 +33,10 @@ class pom:
 		self.registry = registry.registry(self.proxy)
 		self.serials = self.proxy.core.serialPoll(0)
 		_thread.start_new_thread(self.pollSerial, (xmlrpc.client.ServerProxy(url), ))
+
+	def halt(self):
+		self.proxy.system.shutdown("halt command issued")
+
 	def setConsole(self, console):
 		self.console = console
 		self.registry.setConsole(console)

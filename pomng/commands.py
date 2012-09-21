@@ -202,6 +202,10 @@ def cmdLogLevelGet(pom, args):
 	level = pom.getLoggingLevel()
 	pom.console.print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
 
+def cmdHalt(pom, args):
+	pom.halt()
+
+
 cmds = [
 
 		# Config functions
@@ -429,6 +433,13 @@ cmds = [
 			'help'		: "Show the last logs",
 			'callback'	: cmdLogShow,
 			'numargs'	: 1
+		},
+
+		# Other functions
+		{
+			'cmd'		: "halt",
+			'help'		: "Shutdown pom-ng",
+			'callback'	: cmdHalt,
 		}
 		
 	]
