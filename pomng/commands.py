@@ -217,6 +217,7 @@ cmds = [
 
 		{
 			'cmd'		: "config save",
+			'help'		: "Save the current configuration",
 			'signature'	: "config save <name>",
 			'callback'	: cmdConfigSave,
 			'numargs'	: 1
@@ -224,6 +225,7 @@ cmds = [
 
 		{
 			'cmd'		: "config load",
+			'help'		: "Load a stored configuration from the system datastore",
 			'signature'	: "config load <name>",
 			'callback'	: cmdConfigLoad,
 			'complete'	: completeConfigList,
@@ -232,6 +234,7 @@ cmds = [
 		
 		{
 			'cmd'		: "config delete",
+			'help'		: "Remove a stored configuration from the system datastore",
 			'signature'	: "config delete <name>",
 			'callback'	: cmdConfigDelete,
 			'complete'	: completeConfigList,
