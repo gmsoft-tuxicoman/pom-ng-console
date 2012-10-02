@@ -53,7 +53,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 		pom.console.print("\t" * tabs + "<no instance>")
 		return
 
-	for instName in cls['instances']:
+	for instName in sorted(cls['instances']):
 		cmdConfigShowInstance(pom, cls, instName, tabs)
 
 
