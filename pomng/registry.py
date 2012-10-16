@@ -84,17 +84,23 @@ class registry:
 		cls = self.getClass(objClass)
 		inst = self.getInstance(cls, objName)
 
+		if inst == None:
+			self.console.print(objClass + " '" + objName + "' does not exists")
+			return False
+
 		params = inst['parameters']
 		
 		if not paramName in params:
 			self.console.print("No parameter '" + paramName + "' in " + objClass + " '" + objName + "'")
-			return
+			return False
 
 		try:
 			self.proxy.registry.setInstanceParam(objClass, objName, paramName, paramValue)
 		except Exception as e:
 			self.console.print("Error while setting " + objClass + " '" + objName + "' parameter '" + paramName + "' to '" + paramValue + "'")
+			return False
 
+		return True
 
 	def removeInstance(self, objClass, objName):
 		try:
