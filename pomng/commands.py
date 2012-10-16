@@ -76,7 +76,7 @@ def cmdConfigShowInstance(pom, clsName, instName, tabs=0):
 		pom.console.print("\t" * tabs + "\t<no parameter>")
 		return
 
-	for paramName in inst['parameters']:
+	for paramName in sorted(inst['parameters']):
 		if paramName == "running" or paramName == "type" or paramName == "uid":
 			continue
 		param = inst['parameters'][paramName]
@@ -105,11 +105,12 @@ def cmdInstanceStartStop(pom, instClass, action, args):
 	if not inst:
 		pom.console.print(instClass + " '" + instName + "' does not exists")
 		return
+	if not pom.registry.setInstanceParameter(instClass, instName, "running", action):
+		return
 	if inst['parameters']['running']['value'] == action:
 		state = "started" if action == 'yes' else "stopped"
 		pom.console.print(instClass + " '" + instName + "' is already " + state)
 		return
-	pom.registry.setInstanceParameter(instClass, instName, "running", action)
 
 def completeInstanceStartStop(pom, instClass, words):
 	if len(words) != 1:
