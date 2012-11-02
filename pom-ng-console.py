@@ -22,22 +22,30 @@ import sys
 
 pom = None
 
-# First connect to an pom-ng instance
-while pom == None:
-	try:
-		host = input("Enter pom-ng host (localhost) : ")
-	except:
-		print("\n")
-		sys.exit()
-	if host == "":
-		host = "localhost"
+def pom_connect(host):
 	url = "http://" + host + ":8080/RPC2"
 	try:
 		pom = pomng.pom(url)
 		print("Connected to pom-ng version " + pom.getVersion())
+		return pom
 	except Exception as e:
 		print("Could not connect to " + url + " :", e)
-		pom = None
+		return None
+
+if len(sys.argv) > 1:
+	pom = pom_connect(sys.argv[1])
+	if pom == None:
+		sys.exit()
+else:
+	while pom == None:
+		try:
+			host = input("Enter pom-ng host (localhost) : ")
+		except:
+			print("\n")
+			sys.exit()
+		if host == "":
+			host = "localhost"
+		pom = pom_connect(host)
 
 console = pomng.console(pom)
 
