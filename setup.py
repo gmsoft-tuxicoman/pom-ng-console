@@ -21,7 +21,7 @@ setup(
 	description = 'Console frontend for pom-ng',
 	author = 'Guy Martin',
 	author_email = 'gmsoft@tuxicoman.be',
-	version = '0.1',
+	version = '0.0.1',
 	packages = ['pomng'],
 	scripts = ['pom-ng-console.py']
-	)
+)
