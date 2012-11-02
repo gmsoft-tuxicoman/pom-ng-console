@@ -87,6 +87,39 @@ def cmdCoreGetVersion(pom, args):
 	proxy = pom.registry.getProxy()
 	pom.console.print("Pom-ng version is " + proxy.core.getVersion())
 
+def cmdClassParameterShow(pom, args):
+	classes = pom.registry.getClasses()
+	for cls in classes:
+		if not classes[cls]['parameters']:
+			continue
+		pom.console.print(cls + ":")
+		params = classes[cls]['parameters']
+		for paramName in sorted(params):
+			param = params[paramName]
+			pom.console.print("\t" + paramName + " : " + param['value'] + "' (" + param['type'] + ")")
+
+def cmdClassParameterSet(pom, args):
+	clsName = args[0]
+	paramName = args[1]
+	paramValue = args[2]
+	pom.registry.setClassParameter(clsName, paramName, paramValue)
+
+def completeClassParameterSet(pom, words):
+	wordCount = len(words)
+
+	if wordCount == 0:
+		return []
+	
+	classes = pom.registry.getClasses()
+	if wordCount == 1:
+		return [ x for x in classes if classes[x]['parameters'] and x.startswith(words[0]) ]
+
+	cls = classes[words[0]]
+	if wordCount == 2:
+		return [ x for x in cls['parameters'] if 'default_value' in cls['parameters'][x] and x.startswith(words[1]) ]
+
+	return []
+
 def cmdInstanceAdd(pom, instClass, args):
 	instName = args[1]
 	instType = args[0]
@@ -333,6 +366,22 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceStartStop(pom, "input", "no", args),
 			'complete'	: lambda pom, words : completeInstanceStartStop(pom, "input", words),
 			'numargs'	: 1
+		},
+
+		# Global functions
+		{
+			'cmd'		: "global parameter set",
+			'help'		: "Change a global parameter",
+			'signature'	: "global parameter set <class_name> <param_name> <param_value>",
+			'callback'	: cmdClassParameterSet,
+			'complete'	: completeClassParameterSet,
+			'numargs'	: 3
+		},
+
+		{
+			'cmd'		: "global parameter show",
+			'help'		: "Diplay all the global parameters",
+			'callback'	: cmdClassParameterShow
 		},
 
 		# Output functions
