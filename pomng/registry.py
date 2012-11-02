@@ -80,6 +80,23 @@ class registry:
 		except Exception as e:
 			self.console.print("Error while adding " + objClass + " '" + objName + "' : " + str(e))
 
+	def setClassParameter(self, objClass, paramName, paramValue):
+		cls = self.getClass(objClass)
+
+		params = cls['parameters']
+		
+		if not paramName in params:
+			self.console.print("No parameter '" + paramName + "' in " + objClass)
+			return False
+
+		try:
+			self.proxy.registry.setClassParam(objClass, paramName, paramValue)
+		except Exception as e:
+			self.console.print("Error while setting " + objClass + " parameter '" + paramName + "' to '" + paramValue + "'")
+			return False
+
+		return True
+
 	def setInstanceParameter(self, objClass, objName, paramName, paramValue):
 		cls = self.getClass(objClass)
 		inst = self.getInstance(cls, objName)
@@ -129,6 +146,8 @@ class registry:
 
 		res = self.nameMap(reg['classes'])
 		for cls in res:
+			res[cls]['parameters'] = self.nameMap(res[cls]['parameters'])
+
 			instances = []
 			for inst in res[cls]['instances']:
 				instances.append(self.proxy.registry.getInstance(cls, inst['name']))
@@ -161,6 +180,14 @@ class registry:
 
 				# Serial for this class changed !
 				if oldCls['serial'] != newCls['serial']:
+
+					# Check if class parameters were changed
+					oldParams = oldCls['parameters']
+					newParams = self.nameMap(newCls['parameters'])
+					for paramName in newParams:
+						if newParams[paramName]['value'] != oldParams[paramName]['value']:
+							self.console.print("Global " + cls + " parameter '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
+							oldParams[paramName]['value'] = newParams[paramName]['value']
 
 					# Check if instances were added or removed
 					oldInst = oldCls['instances']
