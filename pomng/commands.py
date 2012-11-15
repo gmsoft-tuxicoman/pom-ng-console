@@ -269,6 +269,7 @@ cmds = [
 			'help'		: "Save the current configuration",
 			'signature'	: "config save <name>",
 			'callback'	: cmdConfigSave,
+			'complete'	: completeConfigList,
 			'numargs'	: 1
 		},
 
