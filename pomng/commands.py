@@ -241,6 +241,21 @@ def cmdHalt(pom, args):
 
 
 cmds = [
+		# Analyzers function
+		{
+			'cmd'		: "analyzer parameter set",
+			'signature'	: "analyzer parameter set <analyzer_name> <param_name>",
+			'help'		: "Change the value of a parameter",
+			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "analyzer", args),
+			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "analyzer", words),
+			'numargs'	: 3
+		},
+
+		{
+			'cmd'		: "analyzer show",
+			'help'		: "Show all configured analyzers",
+			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "analyzer"),
+		},
 
 		# Config functions
 		{
