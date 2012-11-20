@@ -164,6 +164,9 @@ class console:
 	def cmdHelp(self, pom, args):
 		if len(args) > 0:
 			cmds = self.cmdMatchRecur(args, self.cmdTree)
+			if not len(cmds):
+				self.print("Unknown or incomplete command")
+				return
 			cmd = cmds[0][0]
 			signature = cmd['cmd']
 			if 'signature' in cmd:
