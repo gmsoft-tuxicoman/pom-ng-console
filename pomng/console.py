@@ -46,12 +46,17 @@ class console:
 
 			self.cmdRunning = True
 
-			split_line = shlex.split(line)
+			try:
+				split_line = shlex.split(line)
+			except Exception as e:
+				self.print("Unparseable line : " + str(e))
+				continue
+
 			if len(split_line) == 0:
 				self.cmdRunning = False
 				continue
 
-			res = self.cmdMatch(shlex.split(line))
+			res = self.cmdMatch(split_line)
 			if res == None:
 				self.cmdRunning = False
 				continue
