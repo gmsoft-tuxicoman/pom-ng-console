@@ -55,4 +55,3 @@ pomng.commandsRegister(console)
 
 console.cmdloop()
 
-	
