@@ -1,0 +1,6 @@
+v0.0.2
+	Add analyzer parameter commands.
+	Add completion for 'config save'.
+	Fix multiple exception in commands parsing.
+v0.0.1
+	First version.
