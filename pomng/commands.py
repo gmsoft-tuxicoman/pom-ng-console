@@ -53,12 +53,21 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 		pom.console.print("\t" * tabs + "<no instance>")
 		return
 
+	perfList = {}
+	perfList['input'] = [ 'bytes_in', 'pkts_in', 'runtime']
+
 	for instName in sorted(cls['instances']):
-		cmdConfigShowInstance(pom, cls, instName, tabs)
+		if clsName in perfList:
+			cmdConfigShowInstance(pom, clsName, instName, tabs, perfList[clsName])
+		else:
+			cmdConfigShowInstance(pom, clsName, instName, tabs, [])
 
 
-def cmdConfigShowInstance(pom, clsName, instName, tabs=0):
-	inst = pom.registry.getInstance(clsName, instName)
+
+def cmdConfigShowInstance(pom, clsName, instName, tabs, perfList):
+
+	cls = pom.registry.getClass(clsName)
+	inst = pom.registry.getInstance(cls, instName)
 	
 	info = ""
 	if 'running' in inst['parameters']:
@@ -67,11 +76,20 @@ def cmdConfigShowInstance(pom, clsName, instName, tabs=0):
 		if len(info) > 0:
 			info += ", "
 		info += "type: " + inst['parameters']['type']['value']
-
 	if len(info) > 0:
-		info = " (" + info + ")"
+		info = " " + info
 
-	pom.console.print("\t" * tabs + instName + ":" + info)
+	perf_str = ""
+	if len(perfList):
+		perfs = pom.registry.getInstancePerf(clsName, instName, perfList)
+		for perf in perfList:
+			if len(perf_str) > 0:
+				perf_str += ", "
+			else:
+				perf_str = " | "
+			perf_str += perf + ": " + perfToHuman(perfs[perf])
+
+	pom.console.print("\t" * tabs + instName + ":" + info + perf_str)
 	if len(inst['parameters']) == 0:
 		pom.console.print("\t" * tabs + "\t<no parameter>")
 		return
@@ -155,7 +173,7 @@ def cmdInstanceRemove(pom, instClass, args):
 	instName = args[0]
 	pom.registry.removeInstance(instClass, instName)
 
-def completeInstanceRemove(pom, instClass, words):
+def completeInstanceList(pom, instClass, words):
 	if len(words) != 1:
 		return []
 	cls = pom.registry.getClass(instClass)
@@ -186,6 +204,64 @@ def completeInstanceParameterSet(pom, instClass, words):
 		return [ x for x in inst['parameters'] if 'default_value' in inst['parameters'][x] and x.startswith(words[1]) and x != "running" ]
 
 	return []
+
+def perfToHuman(perf):
+
+	value = perf['value']
+	unit = perf['unit']
+	if perf['type'] == 'timeticks':
+		csec = (value / 10000) % 100
+		s = value / 1000000
+		m = s / 60
+		h = m / 60
+		s = s % 60
+		m = m % 60
+
+		if h < 24 :
+			return "%02u:%02u:%02u.%02u" % (h, m, s, csec)
+		else:
+			d = h / 24
+			h = h % 24
+			return "%u days %02u:%02u:%02u.%02u" % (d, h, m, s, csec)
+
+	divisor = 1000.0;
+	units = [ '', 'k', 'm', 'g', 't']
+
+	if unit == 'bytes':
+		#bytes are multiple of 1024
+		divisor = 1024.0
+		units = [ '', 'K', 'M', 'G', 'T']
+
+	if value <= 99999.0:
+		return str(value)
+
+	for i in range(len(units) - 1):
+		if value > 99999.0:
+			value /= divisor
+		else:
+			return "%3.1f%s" % (value, units[i])
+
+	return "%3.1f%s" % (value, units[len(units) -1])
+
+def cmdInstancePerfGet(pom, instClass, args):
+	instName = args[0]
+	cls = pom.registry.getClass(instClass)
+	inst = pom.registry.getInstance(cls, instName)
+	if not inst:
+		pom.console.print(instClass + " '" + instName + "' does not exists")
+		return
+	if len(inst['performances']) == 0:
+		pom.console.print(instClass + " '" + instName + "' does not have any performance object")
+		return
+	perfs = []
+	for perf in inst['performances']:
+		perfs.append({ 'class': instClass, 'instance': instName, 'perf': perf})
+
+	perfs = pom.registry.getPerfs(perfs)
+
+	for perf in perfs:
+		pom.console.print(perf + ": " + perfToHuman(perfs[perf]))
+
 
 def cmdLogShow(pom, args):
 	numLogs = 0
@@ -322,7 +398,7 @@ cmds = [
 			'signature'	: "datastore remove <name>",
 			'help'		: "Remove an datastore",
 			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "datastore", args),
-			'complete'	: lambda pom, words : completeInstanceRemove(pom, "datastore", words),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "datastore", words),
 			'numargs'	: 1
 		},
 
@@ -343,6 +419,15 @@ cmds = [
 		},
 
 		{
+			'cmd'		: "input performance get",
+			'signature'	: "input performance get <name>",
+			'help'		: "Display the performance objects of an input",
+			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "input", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "input", words),
+			'numargs'	: 1
+		},
+
+		{
 			'cmd'		: "input parameter set",
 			'signature'	: "input parameter set <input_name> <param_name>",
 			'help'		: "Change the value of a parameter",
@@ -356,7 +441,7 @@ cmds = [
 			'signature'	: "input remove <name>",
 			'help'		: "Remove an input",
 			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "input", args),
-			'complete'	: lambda pom, words : completeInstanceRemove(pom, "input", words),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "input", words),
 			'numargs'	: 1
 		},
 
@@ -424,7 +509,7 @@ cmds = [
 			'signature'	: "output remove <name>",
 			'help'		: "Remove an output",
 			'callback'	: lambda pom, args : cmdInstanceRemove(pom, "output", args),
-			'complete'	: lambda pom, words : completeInstanceRemove(pom, "output", words),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "output", words),
 			'numargs'	: 1
 		},
 
