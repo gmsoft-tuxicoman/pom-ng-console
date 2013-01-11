@@ -55,6 +55,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 
 	perfList = {}
 	perfList['input'] = [ 'bytes_in', 'pkts_in', 'runtime']
+	perfList['output'] = [ 'events', 'bytes_out', 'pkts_out', 'files_open', 'files_closed', 'bytes_written' ]
 
 	for instName in sorted(cls['instances']):
 		if clsName in perfList:
@@ -79,10 +80,13 @@ def cmdConfigShowInstance(pom, clsName, instName, tabs, perfList):
 	if len(info) > 0:
 		info = " " + info
 
+
+	filteredPerfList = [ x for x in perfList if x in inst['performances'] ]
+
 	perf_str = ""
 	if len(perfList):
-		perfs = pom.registry.getInstancePerf(clsName, instName, perfList)
-		for perf in perfList:
+		perfs = pom.registry.getInstancePerf(clsName, instName, filteredPerfList)
+		for perf in filteredPerfList:
 			if len(perf_str) > 0:
 				perf_str += ", "
 			else:
@@ -493,6 +497,15 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "output", args),
 			'complete'	: lambda pom, words : completeInstanceAdd(pom, "output", words),
 			'numargs'	: 2
+		},
+
+		{
+			'cmd'		: "output performance get",
+			'signature'	: "output performance get <name>",
+			'help'		: "Display the performance objects of an output",
+			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "output", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "output", words),
+			'numargs'	: 1
 		},
 
 		{
