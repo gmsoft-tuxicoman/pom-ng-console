@@ -56,6 +56,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 	perfList = {}
 	perfList['input'] = [ 'bytes_in', 'pkts_in', 'runtime']
 	perfList['output'] = [ 'events', 'bytes_out', 'pkts_out', 'files_open', 'files_closed', 'bytes_written' ]
+	perfList['proto'] = [ 'conn_cur', 'conn_tot', 'pkts', 'bytes' ]
 
 	for instName in sorted(cls['instances']):
 		if clsName in perfList:
