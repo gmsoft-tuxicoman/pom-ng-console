@@ -56,6 +56,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 	perfList = {}
 	perfList['input'] = [ 'bytes_in', 'pkts_in', 'runtime']
 	perfList['output'] = [ 'events', 'bytes_out', 'pkts_out', 'files_open', 'files_closed', 'bytes_written' ]
+	perfList['proto'] = [ 'conn_cur', 'conn_tot', 'pkts', 'bytes' ]
 
 	for instName in sorted(cls['instances']):
 		if clsName in perfList:
@@ -226,7 +227,10 @@ def perfToHuman(perf):
 		else:
 			d = h / 24
 			h = h % 24
-			return "%u days %02u:%02u:%02u.%02u" % (d, h, m, s, csec)
+			if d < 2.0:
+				return "1 day %02u:%02u:%02u.%02u" % (h, m, s, csec)
+			else:
+				return "%u days %02u:%02u:%02u.%02u" % (d, h, m, s, csec)
 
 	divisor = 1000.0;
 	units = [ '', 'k', 'm', 'g', 't']
@@ -558,6 +562,15 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceParameterSet(pom, "proto", args),
 			'complete'	: lambda pom, words : completeInstanceParameterSet(pom, "proto", words),
 			'numargs'	: 3
+		},
+
+		{
+			'cmd'		: "proto performance get",
+			'signature'	: "proto performance get <name>",
+			'help'		: "Display the performance objects of an proto",
+			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "proto", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "proto", words),
+			'numargs'	: 1
 		},
 
 		{
