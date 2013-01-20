@@ -57,6 +57,7 @@ def cmdConfigShowClass(pom, clsName, tabs=0):
 	perfList['input'] = [ 'bytes_in', 'pkts_in', 'runtime']
 	perfList['output'] = [ 'events', 'bytes_out', 'pkts_out', 'files_open', 'files_closed', 'bytes_written' ]
 	perfList['proto'] = [ 'conn_cur', 'conn_tot', 'pkts', 'bytes' ]
+	perfList['datastore'] = [ 'read_queries', 'write_queries' ]
 
 	for instName in sorted(cls['instances']):
 		if clsName in perfList:
@@ -87,12 +88,13 @@ def cmdConfigShowInstance(pom, clsName, instName, tabs, perfList):
 	perf_str = ""
 	if len(perfList):
 		perfs = pom.registry.getInstancePerf(clsName, instName, filteredPerfList)
-		for perf in filteredPerfList:
-			if len(perf_str) > 0:
-				perf_str += ", "
-			else:
-				perf_str = " | "
-			perf_str += perf + ": " + perfToHuman(perfs[perf])
+		if perfs:
+			for perf in filteredPerfList:
+				if len(perf_str) > 0:
+					perf_str += ", "
+				else:
+					perf_str = " | "
+				perf_str += perf + ": " + perfToHuman(perfs[perf])
 
 	pom.console.print("\t" * tabs + instName + ":" + info + perf_str)
 	if len(inst['parameters']) == 0:
@@ -390,6 +392,15 @@ cmds = [
 			'callback'	: lambda pom, args : cmdInstanceAdd(pom, "datastore", args),
 			'complete'	: lambda pom, words : completeInstanceAdd(pom, "datastore", words),
 			'numargs'	: 2
+		},
+
+		{
+			'cmd'		: "datastore performance get",
+			'signature'	: "datastore performance get <name>",
+			'help'		: "Display the performance objects of an datastore",
+			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "datastore", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "datastore", words),
+			'numargs'	: 1
 		},
 
 		{
