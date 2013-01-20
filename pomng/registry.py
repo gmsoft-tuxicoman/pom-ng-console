@@ -130,11 +130,10 @@ class registry:
 		cls = self.getClass(objClass)
 		inst = self.getInstance(cls, instName)
 		if not inst:
-			pom.console.print(instClass + " '" + instName + "' does not exists")
-			return
+			self.console.print(objClass + " '" + instName + "' does not exists")
+			return None
 		if len(inst['performances']) == 0:
-			pom.console.print(instClass + " '" + instName + "' does not have any performance object")
-			return
+			return None
 
 		perfs = []
 		for perf in perfList:
