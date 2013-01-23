@@ -326,24 +326,25 @@ def cmdLogLevelSet(pom, args):
 			pom.console.print("New level must be an integer of 1-4 or any of " + str(levels))
 			return
 
-	if newLevel < 1 or newLevel > 4:
+	if newLevel < 0 or newLevel > 4:
 		pom.console.print("Log level must be 1-4")
+		return
 
 	pom.setLoggingLevel(newLevel)
-	pom.console.print("Logging level set to '" + levels[newLevel - 1] + "'")
+	pom.console.print("Logging level set to '" + levels[newLevel] + "'")
 
 def completeLogLevelSet(pom, words):
 	if len(words) != 1:
 		return []
 
 	levels = pom.getLoggingLevels()
-	levels.extend([ '1', '2', '3', '4'])
+	levels.extend([ '0', '1', '2', '3', '4'])
 	return [ x for x in levels if x.startswith(words[0]) ]
 
 def cmdLogLevelGet(pom, args):
 	levels = pom.getLoggingLevels()
 	level = pom.getLoggingLevel()
-	pom.console.print("Logging level set to '" + levels[level - 1] + "' (" + str(level) + ")")
+	pom.console.print("Logging level set to '" + levels[level] + "' (" + str(level) + ")")
 
 def cmdHalt(pom, args):
 	pom.halt()

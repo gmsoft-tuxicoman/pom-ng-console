@@ -51,7 +51,7 @@ class pom:
 		return self.logLevel
 	
 	def getLoggingLevels(self):
-		return [ 'error', 'warning', 'info', 'debug' ]
+		return [ 'none', 'error', 'warning', 'info', 'debug' ]
 
 	def getLastLog(self, num):
 		lastLog = self.serials['log']
