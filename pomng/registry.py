@@ -125,6 +125,20 @@ class registry:
 		except Exception as e:
 			self.console.print("Error while removing " + objClass + " '" + objName + "' : " + str(e))
 
+	def getClassPerf(self, objClass, perfList):
+		cls = self.getClass(objClass)
+		if not cls:
+			self.console.print("class '" + objClass + "' does not exists")
+			return None
+		if len(cls['performances']) == 0:
+			return []
+
+		perfs = []
+		for perf in perfList:
+			perfs.append({ 'class': objClass, 'perf': perf})
+
+		return self.getPerfs(perfs)
+
 	def getInstancePerf(self, objClass, instName, perfList):
 		
 		cls = self.getClass(objClass)
@@ -133,7 +147,7 @@ class registry:
 			self.console.print(objClass + " '" + instName + "' does not exists")
 			return None
 		if len(inst['performances']) == 0:
-			return None
+			return []
 
 		perfs = []
 		for perf in perfList:
@@ -146,15 +160,18 @@ class registry:
 			perfs = self.proxy.registry.getPerfs(perfs)
 		except Exception as e:
 			self.console.print("Error while retrieving performance objects " + str(e))
-
 		perfs = self.nameMap(perfs, "perf")
 
 		# Add useful details about each perf
 		for perf in perfs:
 			cls = self.getClass(perfs[perf]['class'])
-			inst = self.getInstance(cls, perfs[perf]['instance'])
-			perfs[perf]['unit'] = inst['performances'][perf]['unit']
-			perfs[perf]['type'] = inst['performances'][perf]['type']
+			if 'instance' in perfs[perf]:
+				inst = self.getInstance(cls, perfs[perf]['instance'])
+				perfs[perf]['unit'] = inst['performances'][perf]['unit']
+				perfs[perf]['type'] = inst['performances'][perf]['type']
+			else:
+				perfs[perf]['unit'] = cls['performances'][perf]['unit']
+				perfs[perf]['type'] = cls['performances'][perf]['type']
 
 		return perfs
 
@@ -180,6 +197,7 @@ class registry:
 		res = self.nameMap(reg['classes'])
 		for cls in res:
 			res[cls]['parameters'] = self.nameMap(res[cls]['parameters'])
+			res[cls]['performances'] = self.nameMap(res[cls]['performances'])
 
 			instances = []
 			for inst in res[cls]['instances']:

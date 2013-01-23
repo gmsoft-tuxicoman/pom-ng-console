@@ -272,6 +272,29 @@ def cmdInstancePerfGet(pom, instClass, args):
 	for perf in perfs:
 		pom.console.print(perf + ": " + perfToHuman(perfs[perf]))
 
+def cmdClassPerfGet(pom, args):
+	clsName = args[0]
+	cls = pom.registry.getClass(clsName)
+	if not cls:
+		pom.console.print("class '" + clsName + "' does not exists")
+		return
+	if len(cls['performances']) == 0:
+		pom.console.print("class '" + clsName + "' does not have any performance object")
+		return
+	perfs = []
+	for perf in cls['performances']:
+		perfs.append({ 'class': clsName, 'perf': perf})
+
+	perfs = pom.registry.getPerfs(perfs)
+
+	for perf in perfs:
+		pom.console.print(perf + ": " + perfToHuman(perfs[perf]))
+
+def completeClassList(pom, words):
+	if len(words) != 1:
+		return []
+	classes = pom.registry.getClasses()
+	return [ x for x in classes if x.startswith(words[0]) ]
 
 def cmdLogShow(pom, args):
 	numLogs = 0
@@ -491,8 +514,8 @@ cmds = [
 		# Global functions
 		{
 			'cmd'		: "global parameter set",
+			'signature'	: "global parameter set <class> <param_name> <param_value>",
 			'help'		: "Change a global parameter",
-			'signature'	: "global parameter set <class_name> <param_name> <param_value>",
 			'callback'	: cmdClassParameterSet,
 			'complete'	: completeClassParameterSet,
 			'numargs'	: 3
@@ -500,8 +523,17 @@ cmds = [
 
 		{
 			'cmd'		: "global parameter show",
-			'help'		: "Diplay all the global parameters",
+			'help'		: "Display all the global parameters",
 			'callback'	: cmdClassParameterShow
+		},
+
+		{
+			'cmd'		: "global performance get",
+			'signature'	: "global performance get <class>",
+			'help'		: "Display the performance objects of a class",
+			'callback'	: cmdClassPerfGet,
+			'complete'	: completeClassList,
+			'numargs'	: 1
 		},
 
 		# Output functions
