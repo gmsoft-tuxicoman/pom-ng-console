@@ -450,6 +450,17 @@ cmds = [
 			'help'		: "Show all configured datastores",
 			'callback'	: lambda pom, args : cmdConfigShowClass(pom, "datastore"),
 		},
+		
+		# Event functions
+		{
+			'cmd'		: "event performance get",
+			'signature'	: "event performance get <name>",
+			'help'		: "Display the performance objects of an event",
+			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "event", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "event", words),
+			'numargs'	: 1
+		},
+
 
 		# Input functions
 		{
