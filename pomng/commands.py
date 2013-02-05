@@ -39,7 +39,7 @@ def completeConfigList(pom, words):
 
 def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
-	classes = pom.registry.getClasses()
+	classes = [ 'input', 'output', 'datastore', 'analyzer', 'proto' ]
 	for cls in classes:
 		pom.console.print(cls + ":")
 		cmdConfigShowClass(pom, cls, 1)
