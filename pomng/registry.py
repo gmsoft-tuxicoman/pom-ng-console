@@ -175,6 +175,16 @@ class registry:
 
 		return perfs
 
+	def resetAllPerfs(self):
+		self.proxy.registry.resetAllPerfs()
+		return True
+
+	def resetClassPerfs(self, clsName):
+		self.proxy.registry.resetClassPerfs(clsName)
+
+	def resetInstancePerfs(self, clsName, instName):
+		self.proxy.registry.resetInstancePerfs(clsName, instName)
+
 	def nameMap(self, lst, key_str = "name"):
 	
 		res = {}

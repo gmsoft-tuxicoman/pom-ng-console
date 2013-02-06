@@ -145,6 +145,25 @@ def completeClassParameterSet(pom, words):
 
 	return []
 
+def cmdClassPerfReset(pom, args):
+	clsName = args[0]
+	if clsName == 'all':
+		pom.registry.resetAllPerfs()
+	else:
+		if clsName in pom.registry.getClasses():
+			pom.registry.resetClassPerfs(clsName)
+		else:
+			pom.console.print("Class " + clsName + " does not exists")	
+	
+def completeClassListAll(pom, words):
+	if len(words) != 1:
+		return []
+	res = completeClassList(pom, words)
+	all = "all"
+	if (all.startswith(words[0])):
+		res[:0] = [ all ]
+	return res
+
 def cmdInstanceAdd(pom, instClass, args):
 	instName = args[1]
 	instType = args[0]
@@ -155,6 +174,15 @@ def completeInstanceAdd(pom, instClass, words):
 		return []
 	cls = pom.registry.getClass(instClass)
 	return [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
+
+def cmdInstancePerfReset(pom, clsName, args):
+	instName = args[0]
+	cls = pom.registry.getClass(clsName)
+	inst = pom.registry.getInstance(cls, instName)
+	if not inst:
+		pom.console.print(clsName + " '" + instName + "' does not exists")
+		return
+	pom.registry.resetInstancePerfs(clsName, instName)
 
 def cmdInstanceStartStop(pom, instClass, action, args):
 	instName = args[0]
@@ -421,8 +449,17 @@ cmds = [
 		{
 			'cmd'		: "datastore performance get",
 			'signature'	: "datastore performance get <name>",
-			'help'		: "Display the performance objects of an datastore",
+			'help'		: "Display the performance objects of a datastore",
 			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "datastore", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "datastore", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "datastore performance reset",
+			'signature'	: "datastore performance reset <name>",
+			'help'		: "Reset the performance objects of a datastore",
+			'callback'	: lambda pom, args : cmdInstancePerfReset(pom, "datastore", args),
 			'complete'	: lambda pom, words : completeInstanceList(pom, "datastore", words),
 			'numargs'	: 1
 		},
@@ -461,6 +498,14 @@ cmds = [
 			'numargs'	: 1
 		},
 
+		{
+			'cmd'		: "event performance reset",
+			'signature'	: "event performance reset <name>",
+			'help'		: "Reset the performance objects of an event",
+			'callback'	: lambda pom, args : cmdInstancePerfReset(pom, "event", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "event", words),
+			'numargs'	: 1
+		},
 
 		# Input functions
 		{
@@ -477,6 +522,15 @@ cmds = [
 			'signature'	: "input performance get <name>",
 			'help'		: "Display the performance objects of an input",
 			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "input", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "input", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "input performance reset",
+			'signature'	: "input performance reset <name>",
+			'help'		: "Reset the performance objects of an input",
+			'callback'	: lambda pom, args : cmdInstancePerfReset(pom, "input", args),
 			'complete'	: lambda pom, words : completeInstanceList(pom, "input", words),
 			'numargs'	: 1
 		},
@@ -548,6 +602,15 @@ cmds = [
 			'numargs'	: 1
 		},
 
+		{
+			'cmd'		: "global performance reset",
+			'signature'	: "global performance reset <class|all>",
+			'help'		: "Reset all the performances or the ones from a specific class",
+			'callback'	: cmdClassPerfReset,
+			'complete'	: completeClassListAll,
+			'numargs'	: 1
+		},
+
 		# Output functions
 		{
 			'cmd'		: "output add",
@@ -563,6 +626,15 @@ cmds = [
 			'signature'	: "output performance get <name>",
 			'help'		: "Display the performance objects of an output",
 			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "output", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "output", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "output performance reset",
+			'signature'	: "output performance reset <name>",
+			'help'		: "Reset the performance objects of an output",
+			'callback'	: lambda pom, args : cmdInstancePerfReset(pom, "output", args),
 			'complete'	: lambda pom, words : completeInstanceList(pom, "output", words),
 			'numargs'	: 1
 		},
@@ -624,6 +696,15 @@ cmds = [
 			'signature'	: "proto performance get <name>",
 			'help'		: "Display the performance objects of an proto",
 			'callback'	: lambda pom, args : cmdInstancePerfGet(pom, "proto", args),
+			'complete'	: lambda pom, words : completeInstanceList(pom, "proto", words),
+			'numargs'	: 1
+		},
+
+		{
+			'cmd'		: "proto performance reset",
+			'signature'	: "proto performance reset <name>",
+			'help'		: "Reset the performance objects of an proto",
+			'callback'	: lambda pom, args : cmdInstancePerfReset(pom, "proto", args),
 			'complete'	: lambda pom, words : completeInstanceList(pom, "proto", words),
 			'numargs'	: 1
 		},
