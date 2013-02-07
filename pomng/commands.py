@@ -298,7 +298,7 @@ def cmdInstancePerfGet(pom, instClass, args):
 	perfs = pom.registry.getPerfs(perfs)
 
 	for perf in perfs:
-		pom.console.print(perf + ": " + perfToHuman(perfs[perf]))
+		pom.console.print(perf + ": " + perfToHuman(perfs[perf]) + " " + perfs[perf]['unit'])
 
 def cmdClassPerfGet(pom, args):
 	clsName = args[0]
