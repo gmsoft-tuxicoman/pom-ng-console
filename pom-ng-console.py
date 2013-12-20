@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #  This file is part of pom-ng-console.
-#  Copyright (C) 2012 Guy Martin <gmsoft@tuxicoman.be>
+#  Copyright (C) 2012-2013 Guy Martin <gmsoft@tuxicoman.be>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,8 +22,17 @@ import sys
 
 pom = None
 
-def pom_connect(host):
-	url = "http://" + host + ":8080/RPC2"
+def pom_connect(url):
+
+	if (not url.startswith("http")):
+		url = "https://" + url + ":8080/RPC2"
+	
+	if (not url.endswith("RPC2")):
+		if (url.endswith("/")):
+			url += "RPC2"
+		else:
+			url += "/RPC2"
+
 	try:
 		pom = pomng.pom(url)
 		print("Connected to pom-ng version " + pom.getVersion())
@@ -39,7 +48,7 @@ if len(sys.argv) > 1:
 else:
 	while pom == None:
 		try:
-			host = input("Enter pom-ng host (localhost) : ")
+			host = input("Enter pom-ng host or url (localhost) : ")
 		except:
 			print("\n")
 			sys.exit()
