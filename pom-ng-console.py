@@ -25,7 +25,7 @@ pom = None
 def pom_connect(url):
 
 	if (not url.startswith("http")):
-		url = "https://" + url + ":8080/RPC2"
+		url = "http://" + url + ":8080/RPC2"
 	
 	if (not url.endswith("RPC2")):
 		if (url.endswith("/")):
