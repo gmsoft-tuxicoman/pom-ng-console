@@ -1,5 +1,5 @@
 #  This file is part of pom-ng-console.
-#  Copyright (C) 2012 Guy Martin <gmsoft@tuxicoman.be>
+#  Copyright (C) 2012-2013 Guy Martin <gmsoft@tuxicoman.be>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -282,7 +282,7 @@ class registry:
 							newParams = self.nameMap(changedInstance['parameters'])
 							for paramName in newParams:
 								if newParams[paramName]['value'] != oldParams[paramName]['value']:
-									self.console.print("Parameter of " + cls + " '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
+									self.console.print("Parameter of " + cls + " " + inst + " : '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
 									oldParams[paramName]['value'] = newParams[paramName]['value']
 
 
