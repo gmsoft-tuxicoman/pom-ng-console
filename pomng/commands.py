@@ -346,7 +346,7 @@ def cmdLogLevelSet(pom, args):
 	levels = pom.getLoggingLevels()
 
 	if args[0] in levels:
-		newLevel = levels.index(args[0]) + 1
+		newLevel = levels.index(args[0])
 	else:
 		try:
 			newLevel = int(args[0])
@@ -355,7 +355,7 @@ def cmdLogLevelSet(pom, args):
 			return
 
 	if newLevel < 0 or newLevel > 4:
-		pom.console.print("Log level must be 1-4")
+		pom.console.print("Log level must be 0-4")
 		return
 
 	pom.setLoggingLevel(newLevel)
