@@ -31,8 +31,10 @@ class pom:
 		self.url = url
 		self.proxy = xmlrpc.client.ServerProxy(url)
 		self.registry = registry.registry(self.proxy)
-		self.serials = self.proxy.core.serialPoll(0)
-		_thread.start_new_thread(self.pollSerial, (xmlrpc.client.ServerProxy(url), ))
+		self.serials = { 'log' : 0, 'registry' : 0 }
+		_thread.start_new_thread(self.pollRegistry, (xmlrpc.client.ServerProxy(url), ))
+		self.logProxy = xmlrpc.client.ServerProxy(url)
+		_thread.start_new_thread(self.pollLog, (self, ) )
 
 	def halt(self):
 		self.proxy.system.shutdown("halt command issued")
@@ -46,6 +48,11 @@ class pom:
 
 	def setLoggingLevel(self, level):
 		self.logLevel = level
+		# Force the current transaction to restart
+		try:
+			self.logProxy.close();
+		except:
+			pass
 	
 	def getLoggingLevel(self):
 		return self.logLevel
@@ -53,39 +60,39 @@ class pom:
 	def getLoggingLevels(self):
 		return [ 'none', 'error', 'warning', 'info', 'debug' ]
 
-	def getLastLog(self, num):
-		lastLog = self.serials['log']
-		firstLog = lastLog
-		if num > lastLog:
-			firstLog = 0
-		else:
-			firstLog -= num
 
-		return self.proxy.core.getLog(firstLog)
+	def pollLog(self, pollProxy):
+		while True:
+				
+			if self.logLevel == 0:
+				time.sleep(2)
+				continue
 
-	def updateLogs(self, proxy, logId):
-		logs = proxy.core.getLog(logId)
-		for log in logs:
-			if log['level'] <= self.logLevel:
-				self.console.print(log['data'])
-			if log['id'] > self.serials['log']:
-				self.serials['log'] = log['id']
+			try:
+				logs = self.logProxy.core.pollLog(self.serials['log'], self.logLevel, 100)
+				for log in logs:
+					self.console.print(log['data'])
+					if self.serials['log'] < log['id']:
+						self.serials['log'] = log['id']
+			except Exception as e:
+				time.sleep(1)
+				continue
+
 			
-	def pollSerial(self, pollProxy):
+	def pollRegistry(self, pollProxy):
 		failed = False
 		while True:
 			try:
-				serials = pollProxy.core.serialPoll(self.serials['main'])
+				serial = pollProxy.registry.poll(self.serials['registry'])
 
-				if serials['registry'] != self.serials['registry']:
+				if serial < self.serials['registry']:
+					self.serials['logs'] = 0;
+
+				if serial != self.serials['registry']:
 					self.registry.update(pollProxy)
-				
-				curLogId = self.serials['log']
-				self.serials = serials
 
-				if self.serials['log'] != curLogId:
-					self.updateLogs(pollProxy, curLogId)
-			
+				self.serials['registry'] = serial
+				
 			except Exception as e:
 				if not failed:
 					self.console.print("Error while polling pom-ng : " + str(e))
