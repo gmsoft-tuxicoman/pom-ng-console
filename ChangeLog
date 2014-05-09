@@ -1,3 +1,9 @@
+v0.0.5
+	Use the new polling function release in pom-ng v0.0.16.
+
+v0.0.4
+	Allow the user to specify an URL.
+
 v0.0.3
 	Add performance support.
 	Fix log level handling.
