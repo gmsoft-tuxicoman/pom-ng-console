@@ -203,19 +203,17 @@ class registry:
 		self.classes_serial = reg['classes_serial']
 		self.configs_serial = reg['configs_serial']
 		self.configs = reg['configs']
+		res = reg['classes']
 
-		res = self.nameMap(reg['classes'])
 		for cls in res:
 			res[cls]['parameters'] = self.nameMap(res[cls]['parameters'])
 			res[cls]['performances'] = self.nameMap(res[cls]['performances'])
 
-			instances = []
-			for inst in res[cls]['instances']:
-				instances.append(self.proxy.registry.getInstance(cls, inst['name']))
-			res[cls]['instances'] = self.nameMap(instances)
-			
 			# update the parameters
-			instances = res[cls]['instances']
+			instances = {}
+			for inst in res[cls]['instances']:
+				instances[inst] = self.proxy.registry.getInstance(cls, inst)
+
 			for inst in instances:
 				instances[inst]['parameters'] = self.nameMap(instances[inst]['parameters'])
 				instances[inst]['performances'] = self.nameMap(instances[inst]['performances'])
@@ -232,7 +230,7 @@ class registry:
 		if self.classes_serial != newReg['classes_serial']:
 
 			oldClss = self.registry
-			newClss = self.nameMap(newReg['classes'])
+			newClss = newReg['classes']
 
 			# for each class, check if everything matches
 			for cls in oldClss:
@@ -253,7 +251,7 @@ class registry:
 
 					# Check if instances were added or removed
 					oldInst = oldCls['instances']
-					newInst = self.nameMap(newCls['instances'])
+					newInst = newCls['instances']
 
 					# Check for added instances
 					addedInst = set(newInst.keys()) - set(oldInst.keys())
