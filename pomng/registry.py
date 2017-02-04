@@ -206,17 +206,15 @@ class registry:
 		res = reg['classes']
 
 		for cls in res:
-			res[cls]['parameters'] = self.nameMap(res[cls]['parameters'])
 			res[cls]['performances'] = self.nameMap(res[cls]['performances'])
 
 			# update the parameters
-			instances = {}
 			for inst in res[cls]['instances']:
-				instances[inst] = self.proxy.registry.getInstance(cls, inst)
+				res[cls]['instances'][inst] = self.proxy.registry.getInstance(cls, inst)
 
-			for inst in instances:
-				instances[inst]['parameters'] = self.nameMap(instances[inst]['parameters'])
-				instances[inst]['performances'] = self.nameMap(instances[inst]['performances'])
+			for inst in res[cls]['instances']:
+				res[cls]['instances'][inst]['performances'] = self.nameMap(res[cls]['instances'][inst]['performances'])
+
 
 		self.registry = res
 
@@ -236,14 +234,14 @@ class registry:
 			for cls in oldClss:
 
 				oldCls = oldClss[cls]
-				newCls = newClss[cls]
 
+				newCls = newClss[cls]
 				# Serial for this class changed !
 				if oldCls['serial'] != newCls['serial']:
 
 					# Check if class parameters were changed
 					oldParams = oldCls['parameters']
-					newParams = self.nameMap(newCls['parameters'])
+					newParams = newCls['parameters']
 					for paramName in newParams:
 						if newParams[paramName]['value'] != oldParams[paramName]['value']:
 							self.console.print("Global " + cls + " parameter '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
@@ -259,7 +257,6 @@ class registry:
 						for added in addedInst:
 							self.console.print(cls + " '" + added + "' added")
 							newInstance = proxy.registry.getInstance(cls, added)
-							newInstance['parameters'] = self.nameMap(newInstance['parameters'])
 							newInstance['performances'] = self.nameMap(newInstance['performances'])
 							oldCls['instances'].update(self.nameMap([newInstance]))
 					
@@ -277,7 +274,7 @@ class registry:
 						if newInst[inst]['serial'] != oldInst[inst]['serial']:
 							oldParams = oldInst[inst]['parameters']
 							changedInstance = proxy.registry.getInstance(cls, inst)
-							newParams = self.nameMap(changedInstance['parameters'])
+							newParams = changedInstance['parameters']
 							for paramName in newParams:
 								if newParams[paramName]['value'] != oldParams[paramName]['value']:
 									self.console.print("Parameter of " + cls + " " + inst + " : '" + paramName + "' changed from " + oldParams[paramName]['value'] + " to " + newParams[paramName]['value'])
