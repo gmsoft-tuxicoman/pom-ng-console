@@ -173,7 +173,7 @@ def completeInstanceAdd(pom, instClass, words):
 	if len(words) != 1:
 		return []
 	cls = pom.registry.getClass(instClass)
-	return [ x['name'] for x in cls['available_types'] if x['name'].startswith(words[0]) ]
+	return [ x for x in cls['available_types'] if x.startswith(words[0]) ]
 
 def cmdInstancePerfReset(pom, clsName, args):
 	instName = args[0]
