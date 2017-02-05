@@ -160,7 +160,6 @@ class registry:
 			perfs = self.proxy.registry.getPerfs(perfs)
 		except Exception as e:
 			self.console.print("Error while retrieving performance objects " + str(e))
-		perfs = self.nameMap(perfs, "perf")
 
 		# Add useful details about each perf
 		for perf in perfs:
@@ -185,18 +184,6 @@ class registry:
 	def resetInstancePerfs(self, clsName, instName):
 		self.proxy.registry.resetInstancePerfs(clsName, instName)
 
-	def nameMap(self, lst, key_str = "name"):
-	
-		res = {}
-		for item in lst:
-			res[item[key_str]] = {}
-			resItem = res[item[key_str]]
-			for key in item:
-				if key == key_str:
-					continue
-				resItem[key] = item[key]
-		return res
-
 	def fetch(self):
 		# This fetchs the classes in a more python way
 		reg = self.proxy.registry.list()
@@ -206,15 +193,9 @@ class registry:
 		res = reg['classes']
 
 		for cls in res:
-			res[cls]['performances'] = self.nameMap(res[cls]['performances'])
-
 			# update the parameters
 			for inst in res[cls]['instances']:
 				res[cls]['instances'][inst] = self.proxy.registry.getInstance(cls, inst)
-
-			for inst in res[cls]['instances']:
-				res[cls]['instances'][inst]['performances'] = self.nameMap(res[cls]['instances'][inst]['performances'])
-
 
 		self.registry = res
 
@@ -257,8 +238,7 @@ class registry:
 						for added in addedInst:
 							self.console.print(cls + " '" + added + "' added")
 							newInstance = proxy.registry.getInstance(cls, added)
-							newInstance['performances'] = self.nameMap(newInstance['performances'])
-							oldCls['instances'].update(self.nameMap([newInstance]))
+							oldCls['instances'].update(newInstance)
 					
 
 					# Check for removed instances
