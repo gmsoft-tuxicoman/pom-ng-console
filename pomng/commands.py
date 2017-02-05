@@ -35,7 +35,7 @@ def completeConfigList(pom, words):
 	if len(words) != 1:
 		return []
 	configs = pom.registry.getConfigs()
-	return [ x['name'] for x in configs if x['name'].startswith(words[0]) ]
+	return [ x for x in configs if x.startswith(words[0]) ]
 
 def cmdConfigShowAll(pom, args):
 	proxy = pom.registry.getProxy()
