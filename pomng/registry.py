@@ -215,8 +215,8 @@ class registry:
 			for cls in oldClss:
 
 				oldCls = oldClss[cls]
-
 				newCls = newClss[cls]
+
 				# Serial for this class changed !
 				if oldCls['serial'] != newCls['serial']:
 
@@ -238,7 +238,7 @@ class registry:
 						for added in addedInst:
 							self.console.print(cls + " '" + added + "' added")
 							newInstance = proxy.registry.getInstance(cls, added)
-							oldCls['instances'].update(newInstance)
+							oldCls['instances'][added] = newInstance
 					
 
 					# Check for removed instances
