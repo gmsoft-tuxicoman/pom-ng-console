@@ -1,3 +1,6 @@
+v0.0.6
+	Update the API to work with pom-ng v0.0.19.
+
 v0.0.5
 	Use the new polling function release in pom-ng v0.0.16.
 

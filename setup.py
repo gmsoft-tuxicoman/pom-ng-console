@@ -1,5 +1,5 @@
 #  This file is part of pom-ng-console.
-#  Copyright (C) 2012-2014 Guy Martin <gmsoft@tuxicoman.be>
+#  Copyright (C) 2012-2017 Guy Martin <gmsoft@tuxicoman.be>
 #
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ setup(
 	description = 'Console frontend for pom-ng',
 	author = 'Guy Martin',
 	author_email = 'gmsoft@tuxicoman.be',
-	version = '0.0.5',
+	version = '0.0.6',
 	packages = ['pomng'],
 	scripts = ['pom-ng-console.py']
 )
